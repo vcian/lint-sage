@@ -1,15 +1,3 @@
-## 1.0.2
-
-_Nov 11, 2023_
-
-- Enhance the directory structure by adding config folder for all configurations file.
-
-## 1.0.1
-
-_Nov 11, 2023_
-
-- Update getting started section in readme.
-
 ## 1.0.0(Initial Release)
 
 _Nov 11, 2023_

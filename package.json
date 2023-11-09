@@ -1,0 +1,38 @@
+{
+  "name": "@vcian/lint-sage",
+  "version": "1.0.0",
+  "description": "This package designed to simplify the configuration of your projects. This package automates the setup of essential tools and configurations to ensure a clean and consistent codebase.",
+  "bin": {
+    "lint-sage": "index.js"
+  },
+  "files": [
+    "index.js",
+    "./config/.eslintrc.json",
+    "./config/.gitattributes",
+    "./config/.lintstagedrc.json",
+    "./config/.prettierignore",
+    "./config/.prettierrc.json",
+    "./config/pre-commit",
+    "./config/settings.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vcian/lint-sage.git"
+  },
+  "keywords": [
+    "eslint",
+    "prettier",
+    "lint",
+    "husky",
+    "vscode",
+    "reactjs"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vcian/lint-sage/issues"
+  },
+  "homepage": "https://github.com/vcian/lint-sage#readme",
+  "dependencies": {
+    "@inquirer/select": "^1.3.1"
+  }
+}
