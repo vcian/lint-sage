@@ -19,6 +19,8 @@
     "type": "git",
     "url": "git+https://github.com/vcian/lint-sage.git"
   },
+  "main": "index.js",
+  "author": "Vcian",
   "keywords": [
     "eslint",
     "prettier",
