@@ -1,6 +1,6 @@
-## 1.0.0(Initial Release)
+## 1.0.5(Initial Release)
 
-_Nov 11, 2023_
+_Nov 16, 2023_
 
 - Integrated [ESLint] with standard rules for consistent code quality.
 - Implemented [Prettier] for automatic code formatting and style consistency.
