@@ -1,6 +1,6 @@
-# Contributing to [Your Project Name]
+# Contributing to Lint Sage
 
-Thank you for considering contributing to [Your Project Name]! We welcome your help and support in making this project better. This document outlines the guidelines for contributing to our project. Please take a moment to review it to ensure a smooth and effective collaboration.
+Thank you for considering contributing to Lint Sage! We welcome your help and support in making this project better. This document outlines the guidelines for contributing to our project. Please take a moment to review it to ensure a smooth and effective collaboration.
 
 ## Code of Conduct
 
