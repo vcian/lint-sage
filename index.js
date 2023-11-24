@@ -102,10 +102,12 @@ async function init() {
   const preCommitConfigPath = resolve(__dirname, "./config/pre-commit");
   copyFileSync(preCommitConfigPath, "./.husky/pre-commit");
 
-  mkdir("./.vscode", () => {});
+  mkdir("./.vscode", () => { });
 
   const vscodeConfigPath = resolve(__dirname, "./config/settings.json");
+  const vscodeExtensionsPath = resolve(__dirname, "./config/extensions.json");
   copyFileSync(vscodeConfigPath, "./.vscode/settings.json");
+  copyFileSync(vscodeExtensionsPath, "./.vscode/extensions.json");
 
   console.log("configuration files copied successfully.");
 
