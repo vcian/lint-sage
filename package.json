@@ -1,6 +1,6 @@
 {
   "name": "@vcian/lint-sage",
-  "version": "1.1.6",
+  "version": "1.1.0",
   "description": "This package designed to simplify the configuration of your projects. This package automates the setup of essential tools and configurations to ensure a clean and consistent codebase.",
   "bin": {
     "lint-sage": "index.js"
