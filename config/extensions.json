@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        "aaron-bond.better-comments",
+        "codeium.codeium",
+        "mikestead.dotenv",
+        "dbaeumer.vscode-eslint",
+        "wix.vscode-import-cost",
+        "visualstudioexptteam.vscodeintellicode",
+        "yzhang.markdown-all-in-one",
+        "christian-kohler.path-intellisense",
+        "esbenp.prettier-vscode",
+        "sonarsource.sonarlint-vscode"
+    ]
+}

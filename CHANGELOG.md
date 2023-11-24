@@ -1,3 +1,10 @@
+## 1.1.0
+
+_Nov 24, 2023_
+
+- Added a curated list of recommended Visual Studio Code (VSCode) extensions to enhance development workflow and productivity. ([@palaklive](https://github.com/palaklive) in [#3](https://github.com/vcian/lint-sage/pull/3))
+- Enhance TypeScript function return type flexibility. ([@raj-vc](https://github.com/raj-vc) in [#3](https://github.com/vcian/lint-sage/pull/3))
+
 ## 1.0.5(Initial Release)
 
 _Nov 16, 2023_

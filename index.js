@@ -105,7 +105,9 @@ async function init() {
   mkdir("./.vscode", () => {});
 
   const vscodeConfigPath = resolve(__dirname, "./config/settings.json");
+  const vscodeExtensionsPath = resolve(__dirname, "./config/extensions.json");
   copyFileSync(vscodeConfigPath, "./.vscode/settings.json");
+  copyFileSync(vscodeExtensionsPath, "./.vscode/extensions.json");
 
   console.log("configuration files copied successfully.");
 
