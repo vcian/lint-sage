@@ -1,3 +1,9 @@
+## 1.1.1
+
+_Dec 8, 2023_
+
+- Update VS Code settings to use LF (line feed) as end of line (EOL)
+
 ## 1.1.0
 
 _Nov 24, 2023_
