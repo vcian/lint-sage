@@ -14,6 +14,29 @@ function help(code) {
   process.exit(code);
 }
 
+const reactPackagesInstallCmd = ({ install, devInstall, forceCMD }) => {
+  console.log("Installing required plugins...");
+  execSync(
+    `${install} @types/node @types/react @types/react-dom eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-config-next  eslint-config-prettier eslint-plugin-jsx-a11y eslint-plugin-prettier eslint-plugin-promise eslint-plugin-react eslint-plugin-react-hooks  husky lint-staged prettier ${devInstall} ${forceCMD}`,
+    {
+      stdio: "inherit",
+    }
+  );
+};
+
+const reactEslintConfigCmd = () => {
+  const configPath = resolve(__dirname, `./config/nextjs/.eslintrc.json`);
+  copyFileSync(configPath, ".eslintrc.json");
+};
+
+const packagesInstallCmds = {
+  nextjs: reactPackagesInstallCmd,
+};
+
+const eslintConfigCmds = {
+  nextjs: reactEslintConfigCmd,
+};
+
 async function init() {
   const packageManager = await select({
     message: "Select a package manager",
@@ -29,6 +52,24 @@ async function init() {
       {
         name: "pnpm",
         value: "pnpm",
+      },
+    ],
+  });
+
+  const technology = await select({
+    message: "Select a technology",
+    choices: [
+      {
+        name: "NextJs",
+        value: "nextjs",
+      },
+      {
+        name: "Angular",
+        value: "angular",
+      },
+      {
+        name: "NestJs",
+        value: "nestjs",
       },
     ],
   });
@@ -57,13 +98,9 @@ async function init() {
   const { install, uninstall, devInstall } =
     commandsForPackageManager[packageManager];
 
-  console.log("Installing required plugins...");
-  execSync(
-    `${install} @types/node @types/react @types/react-dom eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-config-next  eslint-config-prettier eslint-plugin-jsx-a11y eslint-plugin-prettier eslint-plugin-promise eslint-plugin-react eslint-plugin-react-hooks  husky lint-staged prettier ${devInstall} ${forceCMD}`,
-    {
-      stdio: "inherit",
-    }
-  );
+  const installRequiredPackages = packagesInstallCmds[technology];
+
+  installRequiredPackages({ install, uninstall, devInstall });
 
   execSync(`npm pkg set scripts.lint="next lint --fix`, {
     stdio: "inherit",
@@ -86,7 +123,6 @@ async function init() {
   });
 
   const configNames = [
-    ".eslintrc.json",
     ".gitattributes",
     ".lintstagedrc.json",
     ".prettierignore",
@@ -94,18 +130,25 @@ async function init() {
   ];
 
   console.log("Coping configuration files");
+  const eslintConfigCmd = eslintConfigCmds[technology];
+
+  eslintConfigCmd();
+
   configNames.forEach((configName) => {
-    const configPath = resolve(__dirname, `./config/${configName}`);
+    const configPath = resolve(__dirname, `./config/common/${configName}`);
     copyFileSync(configPath, configName);
   });
 
-  const preCommitConfigPath = resolve(__dirname, "./config/pre-commit");
+  const preCommitConfigPath = resolve(__dirname, "./config/common/pre-commit");
   copyFileSync(preCommitConfigPath, "./.husky/pre-commit");
 
   mkdir("./.vscode", () => {});
 
-  const vscodeConfigPath = resolve(__dirname, "./config/settings.json");
-  const vscodeExtensionsPath = resolve(__dirname, "./config/extensions.json");
+  const vscodeConfigPath = resolve(__dirname, "./config/common/settings.json");
+  const vscodeExtensionsPath = resolve(
+    __dirname,
+    "./config/common/extensions.json"
+  );
   copyFileSync(vscodeConfigPath, "./.vscode/settings.json");
   copyFileSync(vscodeExtensionsPath, "./.vscode/extensions.json");
 

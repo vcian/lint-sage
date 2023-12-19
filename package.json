@@ -7,14 +7,7 @@
   },
   "files": [
     "index.js",
-    "./config/.eslintrc.json",
-    "./config/.gitattributes",
-    "./config/.lintstagedrc.json",
-    "./config/.prettierignore",
-    "./config/.prettierrc.json",
-    "./config/pre-commit",
-    "./config/settings.json",
-    "./config/extensions.json"
+    "config/**"
   ],
   "repository": {
     "type": "git",
