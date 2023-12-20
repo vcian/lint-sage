@@ -40,7 +40,7 @@ const reactEslintConfigCmd = () => {
   );
   const configPathForLintStage = resolve(
     __dirname,
-    `./config/nestjs/.lintstagedrc.json`
+    `./config/nextjs/.lintstagedrc.json`
   );
 
   copyFileSync(configPath, ".eslintrc.json");
