@@ -33,14 +33,14 @@ const nestPackagesInstallCmd = ({ install, devInstall, forceCMD }) => {
 };
 
 const reactEslintConfigCmd = () => {
-  const configPath = resolve(__dirname, `./config/nextjs/.eslintrc.json`);
+  const configPath = resolve(__dirname, `./config/react/.eslintrc.json`);
   const configPathForPrettier = resolve(
     __dirname,
-    `./config/nextjs/.prettierrc.json`
+    `./config/react/.prettierrc.json`
   );
   const configPathForLintStage = resolve(
     __dirname,
-    `./config/nextjs/.lintstagedrc.json`
+    `./config/react/.lintstagedrc.json`
   );
 
   copyFileSync(configPath, ".eslintrc.json");
@@ -64,12 +64,12 @@ const nestEslintConfigCmd = () => {
 };
 
 const packagesInstallCmds = {
-  nextjs: reactPackagesInstallCmd,
+  react: reactPackagesInstallCmd,
   nestjs: nestPackagesInstallCmd,
 };
 
 const eslintConfigCmds = {
-  nextjs: reactEslintConfigCmd,
+  react: reactEslintConfigCmd,
   nestjs: nestEslintConfigCmd,
 };
 
@@ -96,8 +96,8 @@ async function init() {
     message: "Select a technology",
     choices: [
       {
-        name: "NextJs",
-        value: "nextjs",
+        name: "Nextjs",
+        value: "react",
       },
       {
         name: "Angular",
