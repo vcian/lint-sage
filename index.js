@@ -25,16 +25,16 @@ const reactPackagesInstallCmd = ({ install, devInstall, forceCMD }) => {
 };
 
 const reactEslintConfigCmd = () => {
-  const configPath = resolve(__dirname, `./config/nextjs/.eslintrc.json`);
+  const configPath = resolve(__dirname, `./config/react/.eslintrc.json`);
   copyFileSync(configPath, ".eslintrc.json");
 };
 
 const packagesInstallCmds = {
-  nextjs: reactPackagesInstallCmd,
+  react: reactPackagesInstallCmd,
 };
 
 const eslintConfigCmds = {
-  nextjs: reactEslintConfigCmd,
+  react: reactEslintConfigCmd,
 };
 
 async function init() {
@@ -60,8 +60,8 @@ async function init() {
     message: "Select a technology",
     choices: [
       {
-        name: "NextJs",
-        value: "nextjs",
+        name: "React",
+        value: "react",
       },
       {
         name: "Angular",
