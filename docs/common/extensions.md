@@ -18,6 +18,7 @@ The `extensions.json` file provides a list of recommended Visual Studio Code ext
     - `yzhang.markdown-all-in-one`: Simplifies Markdown editing with various features.
     - `christian-kohler.path-intellisense`: Autocompletes filenames in the editor.
     - `esbenp.prettier-vscode`: Integrates Prettier for code formatting.
+    - `chakrounanas.turbo-console-log`: Adds a shortcut to console.log statements.
     - `sonarsource.sonarlint-vscode`: Provides static code analysis to identify and fix code quality issues.
 
 ## Conclusion
