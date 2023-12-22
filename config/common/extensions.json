@@ -10,7 +10,7 @@
         "christian-kohler.path-intellisense",
         "esbenp.prettier-vscode",
         "chakrounanas.turbo-console-log",
-        "sonarsource.sonarlint-vscode"
-        
+        "sonarsource.sonarlint-vscode",
+        "eamodio.gitlens"
     ]
 }
