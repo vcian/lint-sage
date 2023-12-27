@@ -20,6 +20,7 @@ The `extensions.json` file provides a list of recommended Visual Studio Code ext
     - `esbenp.prettier-vscode`: Integrates Prettier for code formatting.
     - `chakrounanas.turbo-console-log`: Adds a shortcut to console.log statements.
     - `sonarsource.sonarlint-vscode`: Provides static code analysis to identify and fix code quality issues.
+    - `eamodio.gitlens`: Enhances Git integration with features like commit history exploration and blame annotations.
 
 ## Conclusion
 

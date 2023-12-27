@@ -8,14 +8,14 @@ The `.lintstagedrc.json` file optimizes the pre-commit process by focusing linti
 
 ### Configuration Details
 
-- **Pattern: `**/\*.{js,jsx,ts,tsx}`\*\*
+- **Pattern: `**/\*.{js,jsx,ts,tsx}`**
 
   - **Description:** Targets JavaScript and TypeScript files for linting and formatting.
   - **Tasks:**
     - `eslint --fix`: Runs ESLint with the fix option to automatically correct linting issues.
     - `prettier --config ./.prettierrc.json --write`: Runs Prettier with a specific configuration file to format code.
 
-- **Pattern: `**/\*.{css,scss,md,html,json}`\*\*
+- **Pattern: `**/\*.{css,scss,md,html,json}`**
   - **Description:** Targets CSS, SCSS, Markdown, HTML, and JSON files for formatting.
   - **Task:**
     - `prettier --config ./.prettierrc.json --write`: Runs Prettier with a specific configuration file to format code.
