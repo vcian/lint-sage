@@ -32,6 +32,15 @@ const nestPackagesInstallCmd = ({ install, devInstall, forceCMD }) => {
   );
 };
 
+const angularPackagesInstallCmd = ({ install, devInstall, forceCMD }) => {
+  execSync(
+    `${install} @types/node eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin @angular-eslint/builder @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template @angular-eslint/schematics @angular-eslint/template-parser husky lint-staged prettier ${devInstall} ${forceCMD}`,
+    {
+      stdio: "inherit",
+    }
+  );
+};
+
 const reactEslintConfigCmd = () => {
   const configPath = resolve(__dirname, `./config/react/.eslintrc.json`);
   const configPathForPrettier = resolve(
@@ -63,14 +72,32 @@ const nestEslintConfigCmd = () => {
   copyFileSync(configPathForLintStage, ".lintstagedrc.json");
 };
 
+const angularEslintConfigCmd = () => {
+  const configPath = resolve(__dirname, `./config/angular/.eslintrc.json`);
+  const configPathForPrettier = resolve(
+    __dirname,
+    `./config/angular/.prettierrc.json`
+  );
+  const configPathForLintStage = resolve(
+    __dirname,
+    `./config/angular/.lintstagedrc.json`
+  );
+
+  copyFileSync(configPath, ".eslintrc.json");
+  copyFileSync(configPathForPrettier, ".prettierrc.json");
+  copyFileSync(configPathForLintStage, ".lintstagedrc.json");
+};
+
 const packagesInstallCmds = {
   react: reactPackagesInstallCmd,
   nestjs: nestPackagesInstallCmd,
+  angular: angularPackagesInstallCmd,
 };
 
 const eslintConfigCmds = {
   react: reactEslintConfigCmd,
   nestjs: nestEslintConfigCmd,
+  angular: angularEslintConfigCmd,
 };
 
 async function init() {
@@ -137,9 +164,15 @@ async function init() {
   const installRequiredPackages = packagesInstallCmds[technology];
 
   console.log("Installing required plugins...");
-  installRequiredPackages({ install, uninstall, devInstall });
+  installRequiredPackages({ install, forceCMD, devInstall });
 
-  execSync(`npm pkg set scripts.lint="next lint --fix`, {
+  const eslintRunCmds = {
+    react: 'next lint --fix',
+    nestjs: 'npm run lint',
+    angular: 'ng lint',
+  };
+
+  execSync(`npm pkg set scripts.lint="${eslintRunCmds[technology]}`, {
     stdio: "inherit",
   });
 
@@ -174,7 +207,7 @@ async function init() {
   const preCommitConfigPath = resolve(__dirname, "./config/common/pre-commit");
   copyFileSync(preCommitConfigPath, "./.husky/pre-commit");
 
-  mkdir("./.vscode", () => {});
+  mkdir("./.vscode", () => { });
 
   const vscodeConfigPath = resolve(__dirname, "./config/common/settings.json");
   const vscodeExtensionsPath = resolve(
