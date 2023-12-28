@@ -168,7 +168,7 @@ async function init() {
 
   const eslintRunCmds = {
     react: 'next lint --fix',
-    nestjs: 'npm run lint',
+    nestjs: 'eslint \"{src,apps,libs,test}/**/*.ts\" --fix',
     angular: 'ng lint',
   };
 
