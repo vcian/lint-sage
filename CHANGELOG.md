@@ -1,3 +1,11 @@
+## 2.0.0
+
+_Jan 3, 2024_
+
+- Added support for the Angular( [@vc-vishakha](https://github.com/vc-vishakha) in [#7](https://github.com/vcian/lint-sage/pull/7) )
+- Added support for the Nestjs( [@vc-lbmadesia](https://github.com/vc-lbmadesia) in [#5](https://github.com/vcian/lint-sage/pull/5) ).
+- Added Documentation for configs in Angular, Next js and Nest js.
+
 ## 1.1.1
 
 _Dec 8, 2023_
