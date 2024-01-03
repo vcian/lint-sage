@@ -9,6 +9,8 @@
         "yzhang.markdown-all-in-one",
         "christian-kohler.path-intellisense",
         "esbenp.prettier-vscode",
-        "sonarsource.sonarlint-vscode"
+        "chakrounanas.turbo-console-log",
+        "sonarsource.sonarlint-vscode",
+        "eamodio.gitlens"
     ]
 }

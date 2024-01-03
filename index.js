@@ -14,6 +14,92 @@ function help(code) {
   process.exit(code);
 }
 
+const reactPackagesInstallCmd = ({ install, devInstall, forceCMD }) => {
+  execSync(
+    `${install} @types/node @types/react @types/react-dom eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-config-next  eslint-config-prettier eslint-plugin-jsx-a11y eslint-plugin-prettier eslint-plugin-promise eslint-plugin-react eslint-plugin-react-hooks  husky lint-staged prettier ${devInstall} ${forceCMD}`,
+    {
+      stdio: "inherit",
+    }
+  );
+};
+
+const nestPackagesInstallCmd = ({ install, devInstall, forceCMD }) => {
+  execSync(
+    `${install} eslint-config-prettier eslint-plugin-prettier eslint-plugin-promise husky lint-staged prettier ${devInstall} ${forceCMD}`,
+    {
+      stdio: "inherit",
+    }
+  );
+};
+
+const angularPackagesInstallCmd = ({ install, devInstall, forceCMD }) => {
+  execSync(
+    `${install} @types/node eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin @angular-eslint/builder @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template @angular-eslint/schematics @angular-eslint/template-parser husky lint-staged prettier ${devInstall} ${forceCMD}`,
+    {
+      stdio: "inherit",
+    }
+  );
+};
+
+const reactEslintConfigCmd = () => {
+  const configPath = resolve(__dirname, `./config/react/.eslintrc.json`);
+  const configPathForPrettier = resolve(
+    __dirname,
+    `./config/react/.prettierrc.json`
+  );
+  const configPathForLintStage = resolve(
+    __dirname,
+    `./config/react/.lintstagedrc.json`
+  );
+
+  copyFileSync(configPath, ".eslintrc.json");
+  copyFileSync(configPathForPrettier, ".prettierrc.json");
+  copyFileSync(configPathForLintStage, ".lintstagedrc.json");
+};
+
+const nestEslintConfigCmd = () => {
+  const configPathForLint = resolve(__dirname, `./config/nestjs/.eslintrc.js`);
+  const configPathForPrettier = resolve(
+    __dirname,
+    `./config/nestjs/.prettierrc`
+  );
+  const configPathForLintStage = resolve(
+    __dirname,
+    `./config/nestjs/.lintstagedrc.json`
+  );
+  copyFileSync(configPathForLint, ".eslintrc.js");
+  copyFileSync(configPathForPrettier, ".prettierrc");
+  copyFileSync(configPathForLintStage, ".lintstagedrc.json");
+};
+
+const angularEslintConfigCmd = () => {
+  const configPath = resolve(__dirname, `./config/angular/.eslintrc.json`);
+  const configPathForPrettier = resolve(
+    __dirname,
+    `./config/angular/.prettierrc.json`
+  );
+  const configPathForLintStage = resolve(
+    __dirname,
+    `./config/angular/.lintstagedrc.json`
+  );
+
+  copyFileSync(configPath, ".eslintrc.json");
+  copyFileSync(configPathForPrettier, ".prettierrc.json");
+  copyFileSync(configPathForLintStage, ".lintstagedrc.json");
+};
+
+const packagesInstallCmds = {
+  react: reactPackagesInstallCmd,
+  nestjs: nestPackagesInstallCmd,
+  angular: angularPackagesInstallCmd,
+};
+
+const eslintConfigCmds = {
+  react: reactEslintConfigCmd,
+  nestjs: nestEslintConfigCmd,
+  angular: angularEslintConfigCmd,
+};
+
 async function init() {
   const packageManager = await select({
     message: "Select a package manager",
@@ -29,6 +115,24 @@ async function init() {
       {
         name: "pnpm",
         value: "pnpm",
+      },
+    ],
+  });
+
+  const technology = await select({
+    message: "Select a technology",
+    choices: [
+      {
+        name: "Nextjs",
+        value: "react",
+      },
+      {
+        name: "Angular",
+        value: "angular",
+      },
+      {
+        name: "NestJs",
+        value: "nestjs",
       },
     ],
   });
@@ -57,15 +161,18 @@ async function init() {
   const { install, uninstall, devInstall } =
     commandsForPackageManager[packageManager];
 
-  console.log("Installing required plugins...");
-  execSync(
-    `${install} @types/node @types/react @types/react-dom eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-config-next  eslint-config-prettier eslint-plugin-jsx-a11y eslint-plugin-prettier eslint-plugin-promise eslint-plugin-react eslint-plugin-react-hooks  husky lint-staged prettier ${devInstall} ${forceCMD}`,
-    {
-      stdio: "inherit",
-    }
-  );
+  const installRequiredPackages = packagesInstallCmds[technology];
 
-  execSync(`npm pkg set scripts.lint="next lint --fix`, {
+  console.log("Installing required plugins...");
+  installRequiredPackages({ install, forceCMD, devInstall });
+
+  const eslintRunCmds = {
+    react: 'next lint --fix',
+    nestjs: 'eslint \"{src,apps,libs,test}/**/*.ts\" --fix',
+    angular: 'ng lint',
+  };
+
+  execSync(`npm pkg set scripts.lint="${eslintRunCmds[technology]}`, {
     stdio: "inherit",
   });
 
@@ -85,27 +192,28 @@ async function init() {
     stdio: "inherit",
   });
 
-  const configNames = [
-    ".eslintrc.json",
-    ".gitattributes",
-    ".lintstagedrc.json",
-    ".prettierignore",
-    ".prettierrc.json",
-  ];
+  const configNames = [".gitattributes", ".prettierignore"];
 
   console.log("Coping configuration files");
+  const eslintConfigCmd = eslintConfigCmds[technology];
+
+  eslintConfigCmd();
+
   configNames.forEach((configName) => {
-    const configPath = resolve(__dirname, `./config/${configName}`);
+    const configPath = resolve(__dirname, `./config/common/${configName}`);
     copyFileSync(configPath, configName);
   });
 
-  const preCommitConfigPath = resolve(__dirname, "./config/pre-commit");
+  const preCommitConfigPath = resolve(__dirname, "./config/common/pre-commit");
   copyFileSync(preCommitConfigPath, "./.husky/pre-commit");
 
-  mkdir("./.vscode", () => {});
+  mkdir("./.vscode", () => { });
 
-  const vscodeConfigPath = resolve(__dirname, "./config/settings.json");
-  const vscodeExtensionsPath = resolve(__dirname, "./config/extensions.json");
+  const vscodeConfigPath = resolve(__dirname, "./config/common/settings.json");
+  const vscodeExtensionsPath = resolve(
+    __dirname,
+    "./config/common/extensions.json"
+  );
   copyFileSync(vscodeConfigPath, "./.vscode/settings.json");
   copyFileSync(vscodeExtensionsPath, "./.vscode/extensions.json");
 
