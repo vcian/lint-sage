@@ -72,7 +72,7 @@ module.exports = {
     'no-console': 'error',
     'no-mixed-operators': 'error',
     'keyword-spacing': 'error',
-    'multiline-ternary': ['error', 'never'],
+    'no-nested-ternary': 2,
     'no-undef': 'error',
     'no-whitespace-before-property': 'error',
     'nonblock-statement-body-position': 'error',

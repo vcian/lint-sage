@@ -1,3 +1,10 @@
+## 2.0.1
+
+_Jan 8, 2024_
+
+- Remove 'multiline-ternary' rule of ESLint for Nestjs.
+- Add 'no-nested-ternary' rule of ESLint for  Nest.
+
 ## 2.0.0
 
 _Jan 3, 2024_
