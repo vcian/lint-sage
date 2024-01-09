@@ -1,3 +1,9 @@
+## 2.0.2
+
+_Jan 9, 2024_
+
+- Fix the double quotation issue in the commands scripts.lint and scripts.prepare
+
 ## 2.0.1
 
 _Jan 8, 2024_
