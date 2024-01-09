@@ -172,14 +172,14 @@ async function init() {
     angular: 'ng lint',
   };
 
-  execSync(`npm pkg set scripts.lint="${eslintRunCmds[technology]}`, {
+  execSync(`npm pkg set scripts.lint="${eslintRunCmds[technology]}"`, {
     stdio: "inherit",
   });
 
   console.log("Required plugins installed successfully.");
 
   console.log("Adding husky script");
-  execSync(`npm pkg set scripts.prepare="husky install`, {
+  execSync(`npm pkg set scripts.prepare="husky install"`, {
     stdio: "inherit",
   });
 
