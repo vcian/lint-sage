@@ -1,3 +1,12 @@
+## 2.1.0
+
+_Feb 19, 2024_
+
+- add interface naming convention rule for nestjs
+- remove mix-operator rule for  Nest.
+- change max-length from 200 to 120
+- add es5 value in trailingComma
+
 ## 2.0.2
 
 _Jan 9, 2024_
