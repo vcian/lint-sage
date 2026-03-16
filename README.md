@@ -44,7 +44,7 @@ npm install   # or pnpm install / yarn install
 - **lint-staged** — run linters on staged files only
 - **commitlint** — enforce Conventional Commits via `@vcian/commitlint-config`
 - **VS Code** — workspace settings and extension recommendations
-- **GitHub Actions** — `.github/workflows/lint.yml` CI workflow
+- **GitHub Actions** — `.github/workflows/ci.yml` CI workflow
 - **package.json** — `devDependencies` and lint/format scripts
 
 ## CLI Commands
