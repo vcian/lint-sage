@@ -1,0 +1,35 @@
+{
+  "name": "@vcian/eslint-config-node",
+  "version": "1.0.0",
+  "description": "Shared ESLint flat config for Node.js + TypeScript projects by Viitor Cloud.",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vcian/lint-sage.git",
+    "directory": "packages/eslint-config-node"
+  },
+  "keywords": [
+    "eslint",
+    "eslint-config",
+    "node",
+    "typescript",
+    "flat-config"
+  ],
+  "peerDependencies": {
+    "eslint": ">=9.0.0",
+    "typescript": ">=5.0.0"
+  },
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-n": "^17.0.0",
+    "eslint-plugin-security": "^3.0.0"
+  }
+}

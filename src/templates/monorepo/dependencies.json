@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@commitlint/cli": "{{version:@commitlint/cli}}",
+    "@commitlint/config-conventional": "{{version:@commitlint/config-conventional}}",
+    "@vcian/commitlint-config": "{{version:@vcian/commitlint-config}}",
+    "@vcian/prettier-config": "{{version:@vcian/prettier-config}}",
+    "husky": "{{version:husky}}",
+    "lint-staged": "{{version:lint-staged}}",
+    "prettier": "{{version:prettier}}"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  }
+}

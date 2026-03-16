@@ -1,47 +1,182 @@
-# Lint Sage
+# @vcian/lint-sage
 
-Welcome to `lint sage`, a package designed to simplify the configuration of your projects. This package automates the setup of essential tools and configurations to ensure a clean and consistent codebase. By using `lint sage`, you'll save time and effort in setting up your projects.
+[![npm version](https://img.shields.io/npm/v/@vcian/lint-sage)](https://www.npmjs.com/package/@vcian/lint-sage)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-1. **ESLint with Standard Rules**: This package configures ESLint with a set of standard rules to help you maintain code quality and consistency. ESLint is a powerful linter for JavaScript and TypeScript that identifies and fixes common programming errors.
+CLI for bootstrapping and maintaining consistent linting, formatting, commit, editor, and CI standards across Viitor Cloud TypeScript projects. Set up once with `init`, keep healthy with `update` and `doctor`, and cleanly remove with `eject`.
 
-2. **Prettier**: Prettier is a code formatter that ensures your code is well-formatted and follows a consistent style. It integrates seamlessly with ESLint for a smooth development experience.
+## Prerequisites
 
-3. **Husky**: Husky is a tool that hooks into your Git workflow to run pre-commit and pre-push scripts. With `lint sage`, you can configure Husky to run linting and formatting checks before committing your changes, ensuring that only clean code is pushed to your repository.
+- Node.js >= 20
+- A TypeScript project with a `package.json`
 
-4. **Lint Stage**: Lint Staged is a tool that runs ESLint and Prettier on the files you've staged for commit. This ensures that your staged changes meet the defined code standards before they are committed.
+## Quick Start
 
-5. **.vscode Configuration**: We provide a predefined VS Code configuration for your project, including settings that work seamlessly with ESLint and Prettier. This ensures that your development environment is optimized for clean and efficient coding.
-
-## Getting Started
-
-To get started with `lint sage`, follow these steps:
-
-```sh
+```bash
 npx @vcian/lint-sage@latest init
 ```
 
-For force initialization, follow these steps:
+Select your stack and variant interactively, or use a preset:
 
-```sh
-npx @vcian/lint-sage@latest init --force
+```bash
+npx @vcian/lint-sage@latest init --preset next-js
 ```
+
+Then install dependencies:
+
+```bash
+npm install   # or pnpm install / yarn install
+```
+
+## Supported Stacks & Variants
+
+| Stack   | Variants                                            |
+| ------- | --------------------------------------------------- |
+| React   | `vite-react-ts`, `@tanstack/react-start`, `next-js` |
+| Node    | `express`, `fastify`, `nestjs`, `plain-ts`          |
+| Angular | `angular-standalone`, `angular-ssr`                 |
+
+## What Gets Configured
+
+- **ESLint** — stack-specific flat config via shared config packages
+- **Prettier** — consistent formatting via `@vcian/prettier-config`
+- **Husky** — pre-commit and commit-msg hooks
+- **lint-staged** — run linters on staged files only
+- **commitlint** — enforce Conventional Commits via `@vcian/commitlint-config`
+- **VS Code** — workspace settings and extension recommendations
+- **GitHub Actions** — `.github/workflows/lint.yml` CI workflow
+- **package.json** — `devDependencies` and lint/format scripts
+
+## CLI Commands
+
+### `init`
+
+Scaffolds lint-sage configuration in the current project.
+
+```bash
+npx @vcian/lint-sage init [options]
+```
+
+### `update`
+
+Compares your project against the latest templates and applies safe updates using a three-state merge (auto-replace unchanged files, keep locally modified files, flag conflicts).
+
+```bash
+npx @vcian/lint-sage update [options]
+```
+
+### `doctor`
+
+Runs health checks on your lint-sage setup and reports issues. Use `--fix` to auto-repair.
+
+```bash
+npx @vcian/lint-sage doctor [options]
+```
+
+### `eject`
+
+Cleanly removes all lint-sage-managed files and `package.json` entries.
+
+```bash
+npx @vcian/lint-sage eject [options]
+```
+
+## Preset Values
+
+For CI pipelines or template repos where interactive prompts are not viable, `--preset` accepts the canonical variant ID directly:
+
+```bash
+# React
+npx @vcian/lint-sage@latest init --preset vite-react-ts
+npx @vcian/lint-sage@latest init --preset next-js
+npx @vcian/lint-sage@latest init --preset @tanstack/react-start
+
+# Node
+npx @vcian/lint-sage@latest init --preset express
+npx @vcian/lint-sage@latest init --preset nestjs
+
+# Angular
+npx @vcian/lint-sage@latest init --preset angular-standalone
+npx @vcian/lint-sage@latest init --preset angular-ssr
+```
+
+For non-interactive monorepo initialization, use a comma-separated `--preset` with `package-path:variant` mapping:
+
+```bash
+npx @vcian/lint-sage@latest init --monorepo \
+  --preset apps/web:next-js,apps/api:nestjs,packages/shared-utils:plain-ts
+```
+
+All packages must be listed — lint-sage will error if a discovered package is missing from the preset map.
+
+## CLI Flags
+
+| Flag                | Commands                  | Description                                            |
+| ------------------- | ------------------------- | ------------------------------------------------------ |
+| `--preset <value>`  | `init`                    | Skip prompts with a preset (`next-js`, `nestjs`, etc.) |
+| `--monorepo`        | `init`                    | Force monorepo mode                                    |
+| `--force`           | `init`, `eject`           | Skip confirmation prompts                              |
+| `--dry-run`         | `init`, `update`, `eject` | Preview changes without writing files                  |
+| `--verbose`         | all                       | Print detailed output for debugging                    |
+| `--package-manager` | `init`, `update`, `eject` | Override detection (`npm`, `pnpm`, `yarn`)             |
+| `--fix`             | `doctor`                  | Auto-fix issues found by health checks                 |
+
+## Monorepo Support
+
+lint-sage auto-detects monorepos (Turborepo, Nx, npm/yarn/pnpm workspaces, Lerna) and configures shared root settings with per-package ESLint configs.
+
+```bash
+# Auto-detected
+npx @vcian/lint-sage init
+
+# Explicit
+npx @vcian/lint-sage init --monorepo
+
+# Non-interactive with presets
+npx @vcian/lint-sage init --preset "apps/web:next-js,apps/api:nestjs,packages/shared:plain-ts"
+```
+
+Root gets shared configs (Prettier, Husky, commitlint, lint-staged, VS Code, CI). Each package gets its own `eslint.config.js` matching its stack.
+
+## Shared Config Packages
+
+lint-sage generates config files that reference these shared packages:
+
+| Package                        | Purpose                             |
+| ------------------------------ | ----------------------------------- |
+| `@vcian/eslint-config-react`   | ESLint flat config for React + TS   |
+| `@vcian/eslint-config-node`    | ESLint flat config for Node + TS    |
+| `@vcian/eslint-config-angular` | ESLint flat config for Angular + TS |
+| `@vcian/prettier-config`       | Shared Prettier formatting rules    |
+| `@vcian/commitlint-config`     | Conventional Commits enforcement    |
+
+These packages work standalone — any project can install and wire them manually without lint-sage.
+
+## `.lint-sage.json`
+
+lint-sage writes a `.lint-sage.json` state file to track what it manages. **Commit this file to version control.** It enables `update`, `doctor`, and `eject` to work correctly.
+
+## Versioning Strategy
+
+Dependencies are tilde-pinned (e.g., `~9.22.0`) to allow patch updates within a range. When `update` runs:
+
+- If your version is a higher patch within the same range — kept as-is
+- If the template has a newer minor/major — updated and reported
+
+## Ejecting
+
+`eject` removes only what lint-sage added:
+
+- Managed config files (ESLint, Prettier, Husky, lint-staged, commitlint, VS Code, CI)
+- `devDependencies` and scripts that lint-sage added to `package.json`
+- `.lint-sage.json` state file
+
+Pre-existing config and dependencies are preserved.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## License
 
-This package is distributed under the **MIT license**. Feel free to use, modify, and distribute it as needed.
-
-For details, please see the [LICENSE file](LICENSE) included with this package.
-
-Contributions and feedback are always welcome!
-
-## Issues and Support
-
-If you encounter any issues, have questions, or need support, we're here to help. You can reach out in the following ways:
-
-- **GitHub Issues**: If you discover a bug, have suggestions for improvements, or need assistance, please open an issue on our [GitHub repository](https://github.com/vcian/lint-sage/issues). This is the primary way to get help and provide feedback.
-
-- **Community Discussions**: Join our community discussions on [GitHub Discussions](https://github.com/vcian/lint-sage/discussions). Share your experiences, ask questions, and connect with other users.
-
-We're committed to making your experience with `lint sage` as smooth as possible and are eager to assist with any issues or questions you may have. Your feedback and contributions are highly valued.
-
-Happy coding!
+[MIT](LICENSE)

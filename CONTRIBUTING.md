@@ -1,56 +1,136 @@
-# Contributing to Lint Sage
+# Contributing to lint-sage
 
-Thank you for considering contributing to Lint Sage! We welcome your help and support in making this project better. This document outlines the guidelines for contributing to our project. Please take a moment to review it to ensure a smooth and effective collaboration.
+## Purpose
+
+Thanks for contributing to `lint-sage`.
+
+This project is intended to help Viitor Cloud teams bootstrap and maintain consistent linting, formatting, commit, editor, and CI standards across TypeScript projects. Contributions should keep that core goal in mind: reduce setup drift, improve maintainability, and make standards easier to adopt safely.
+
+## Start Here
+
+Before making changes, read the docs that define the product direction:
+
+- `README.md`
+- `docs/architecture.md` — technical structure, design, and detailed command behavior
+- `docs/overview.md` — product summary and goals
+- `docs/glossary.md` — shared terminology
+
+When code and docs disagree, treat `docs/architecture.md` as the source of truth unless the pull request explicitly updates it.
+
+## What We Welcome
+
+Contributions are especially helpful in these areas:
+
+- CLI command implementation (`init`, `update`, `doctor`, `eject`)
+- Template generation and merge logic
+- Monorepo support
+- Shared config packages
+- Tests for edge cases and upgrade paths
+- Documentation improvements and onboarding clarity
+
+## Before You Change Anything
+
+Try to keep changes aligned with the project's existing principles:
+
+- TypeScript-only support
+- Safe defaults over clever behavior
+- No silent destructive changes
+- No automatic install commands
+- Clear user-facing output
+- Monorepo-aware behavior where relevant
+
+If your change affects product behavior, update the relevant docs in `docs/` in the same pull request.
+
+## Contribution Workflow
+
+1. Read the relevant spec and architecture docs for the area you want to change.
+2. Create a focused branch.
+3. Make the smallest change that fully solves the problem.
+4. Add or update tests when behavior changes.
+5. Update docs when user-facing behavior or architecture changes.
+6. Open a pull request with enough context for a reviewer to understand the intent quickly.
+
+## Commit Messages
+
+Use Conventional Commits whenever possible. Examples:
+
+- `feat: add init preset parsing`
+- `fix: preserve local config changes during update`
+- `docs: clarify monorepo package manager detection`
+- `test: cover doctor fix for missing husky hooks`
+
+Keep commits small and reviewable. A series of focused commits is preferred over one large mixed commit.
+
+## Pull Request Expectations
+
+A good pull request should:
+
+- Explain the problem being solved.
+- Summarize the approach taken.
+- Call out any tradeoffs or follow-up work.
+- Mention which docs or sprint items were affected.
+- Include test coverage or explain why tests were not added.
+
+If the change updates CLI behavior, include example output or a short note describing the new UX.
+
+## Testing
+
+As the codebase grows, contributors should prefer tests that verify behavior rather than implementation details.
+
+Prioritize:
+
+- Integration tests for CLI flows
+- Template generation tests
+- Merge and conflict handling tests
+- Monorepo detection and workspace discovery tests
+- Regression tests for previously reported bugs
+
+If a change is difficult to test automatically, explain the manual verification steps in the pull request.
+
+## Documentation Changes
+
+Documentation is part of the product here, not an afterthought.
+
+Please update documentation when you change:
+
+- Supported stacks or variants
+- Generated files or template structure
+- CLI flags or command behavior
+- State file schema
+- Versioning or package manager behavior
+
+## Design Guidelines
+
+When making implementation decisions, prefer:
+
+- Predictable behavior over magic
+- Explicit prompts over risky assumptions
+- Structural merges over broad file rewrites
+- Backward-compatible schema evolution where possible
+- Clear errors that tell the user what to do next
+
+## Review Guidelines
+
+When reviewing contributions, prioritize:
+
+- User-facing correctness
+- Safety of file writes and updates
+- Preservation of team-owned config changes
+- Monorepo compatibility
+- Test coverage for edge cases
+- Clarity of docs and CLI output
+
+## Questions and Proposals
+
+If you want to propose a larger change, start by opening a discussion or updating the relevant spec doc that explains:
+
+- The problem
+- Why the current design is insufficient
+- The proposed change
+- Migration or compatibility concerns
+
+Early alignment is much better than large surprise pull requests.
 
 ## Code of Conduct
 
-Please note that this project is released with a [Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project, you agree to abide by its terms.
-
-## How to Contribute
-
-We appreciate and welcome contributions in various forms, including bug reports, feature requests, documentation improvements, code enhancements, and more. Here's how you can get started:
-
-1. **Fork the Repository**: If you haven't already, fork the repository to your GitHub account.
-
-2. **Clone the Repository**: Clone your forked repository to your local development environment.
-
-   ```bash
-   git clone https://github.com/vcian/lint-sage.git
-   ```
-3. **Create a Branch**: Before you start making changes to the project, it's essential to create a new branch where you'll work on your feature or bug fix. Use a descriptive branch name that summarizes your changes:
-
-   ```bash
-   git checkout -b feature/your-feature
-   ```
-
-    Replace `feature/your-feature` with an appropriate branch name that reflects the nature of your work.
-
-4. **Make Changes**: Now that you have your branch, you can start making changes to the project. Implement your feature, fix bugs, or make other improvements. Ensure that your code adheres to the project's coding guidelines and standards.
-
-5. **Documentation**: If your changes affect user documentation, it's crucial to update the documentation accordingly. Clear and up-to-date documentation ensures that users can understand and use your changes effectively.
-
-6. **Commit Changes**: Once you've made the necessary changes and are satisfied with your work, it's time to commit your changes. Use a clear and concise commit message that describes the purpose of your commit:
-
-   ```bash
-   git commit -m "Your commit message"
-   ```
-
-    Replace `"Your commit message"` with a message that summarizes what your commit accomplishes. A well-written commit message helps others understand the purpose of your changes.
-
-7. **Push Changes**: After committing your changes locally, it's time to push them to your forked repository on GitHub. This step ensures that your changes are available for review and integration into the main project:
-
-   ```bash
-   git push origin feature/your-feature
-   ```
-
-    Replace `feature/your-feature` with the name of your branch. This command sends your changes to your GitHub repository, making them accessible for creating a pull request.
-
-    By following these steps, you can effectively create, make changes, document, commit, and push your contributions to the project.
-
-8. **Create a Pull Request**: Open a pull request (PR) to the main repository. Please provide a clear and informative title and description of your changes.
-
-9. **Code Review**: Your PR will undergo code review, where feedback may be provided. Be prepared to make further changes based on the feedback.
-
-10. **Merging**: Once your PR is approved, it will be merged into the main repository.
-
-11.  **Thank You!**: Your contribution is greatly appreciated. We thank you for your valuable help in improving Lint Sage.
+By participating in this project, you agree to follow the expectations in `CODE_OF_CONDUCT.md`.

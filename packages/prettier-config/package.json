@@ -1,0 +1,24 @@
+{
+  "name": "@vcian/prettier-config",
+  "version": "1.0.0",
+  "description": "Shared Prettier config for Viitor Cloud projects.",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vcian/lint-sage.git",
+    "directory": "packages/prettier-config"
+  },
+  "keywords": [
+    "prettier",
+    "prettier-config",
+    "formatting"
+  ],
+  "peerDependencies": {
+    "prettier": ">=3.0.0"
+  }
+}

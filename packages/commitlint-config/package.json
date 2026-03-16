@@ -1,0 +1,27 @@
+{
+  "name": "@vcian/commitlint-config",
+  "version": "1.0.0",
+  "description": "Shared commitlint config for Viitor Cloud projects.",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vcian/lint-sage.git",
+    "directory": "packages/commitlint-config"
+  },
+  "keywords": [
+    "commitlint",
+    "commitlint-config",
+    "conventional-commits"
+  ],
+  "peerDependencies": {
+    "@commitlint/cli": ">=19.0.0"
+  },
+  "dependencies": {
+    "@commitlint/config-conventional": "^19.0.0"
+  }
+}

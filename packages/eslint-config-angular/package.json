@@ -1,0 +1,36 @@
+{
+  "name": "@vcian/eslint-config-angular",
+  "version": "1.0.0",
+  "description": "Shared ESLint flat config for Angular + TypeScript projects by Viitor Cloud.",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vcian/lint-sage.git",
+    "directory": "packages/eslint-config-angular"
+  },
+  "keywords": [
+    "eslint",
+    "eslint-config",
+    "angular",
+    "typescript",
+    "flat-config"
+  ],
+  "peerDependencies": {
+    "eslint": ">=9.0.0",
+    "typescript": ">=5.0.0"
+  },
+  "dependencies": {
+    "@angular-eslint/eslint-plugin": "^19.0.0",
+    "@angular-eslint/eslint-plugin-template": "^19.0.0",
+    "@angular-eslint/template-parser": "^19.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-import": "^2.29.0"
+  }
+}

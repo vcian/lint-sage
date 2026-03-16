@@ -1,57 +1,67 @@
 # Code of Conduct
 
-## Our Pledge
+## Our Commitment
 
-In the interest of fostering an open and welcoming environment, we as
-contributors and maintainers pledge to make participation in our project and
-our community a harassment-free experience for everyone, regardless of age, body
-size, disability, ethnicity, sex characteristics, gender identity and expression,
-level of experience, education, socio-economic status, nationality, personal
-appearance, race, religion, or sexual identity and orientation.
+This project aims to make engineering standards easier to adopt and maintain. We want the contributor experience to reflect that same goal: clear, respectful, and welcoming to people of different backgrounds, experience levels, and perspectives.
 
-## Our Standards
+We expect everyone participating in this repository and related discussions to help create an environment that is constructive, professional, and safe.
 
-Examples of behavior that contributes to creating a positive environment
-include:
+## Expected Behavior
 
-* Using welcoming and inclusive language
-* Being respectful of differing viewpoints and experiences
-* Gracefully accepting constructive criticism
-* Focusing on what is best for the community
-* Showing empathy towards other community members
+Examples of behavior that help build a healthy community include:
 
-Examples of unacceptable behavior by participants include:
+- Being respectful in disagreements and assuming good intent.
+- Giving feedback that is specific, kind, and actionable.
+- Welcoming questions, especially from newer contributors.
+- Sharing context openly so others can learn and contribute effectively.
+- Focusing critiques on ideas, code, and process rather than people.
+- Respecting boundaries, privacy, and confidential company information.
 
-* The use of sexualized language or imagery and unwelcome sexual attention or
-  advances
-* Trolling, insulting/derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others' private information, such as a physical or electronic
-  address, without explicit permission
-* Other conduct which could reasonably be considered inappropriate in a
-  professional setting
+## Unacceptable Behavior
 
-## Our Responsibilities
+Examples of unacceptable behavior include:
 
-Project maintainers are responsible for clarifying the standards of acceptable
-behavior and are expected to take appropriate and fair corrective action in
-response to any instances of unacceptable behavior.
-
-Project maintainers have the right and responsibility to remove, edit, or
-reject comments, commits, code, wiki edits, issues, and other contributions
-that are not aligned to this Code of Conduct, or to ban temporarily or
-permanently any contributor for other behaviors that they deem inappropriate,
-threatening, offensive, or harmful.
+- Harassment, intimidation, discrimination, or personal attacks.
+- Trolling, insulting, demeaning, or inflammatory comments.
+- Sexual language or imagery in project spaces.
+- Publishing private, sensitive, or identifying information without permission.
+- Repeatedly dismissing, belittling, or excluding others.
+- Any conduct that would be inappropriate in a professional workplace.
 
 ## Scope
 
-This Code of Conduct applies within all project spaces, and it also applies when
-an individual is representing the project or its community in public spaces.
-Examples of representing a project or community include using an official
-project e-mail address, posting via an official social media account, or acting
-as an appointed representative at an online or offline event. Representation of
-a project may be further defined and clarified by project maintainers.
+This Code of Conduct applies to all project spaces, including:
 
-This Code of Conduct also applies outside the project spaces when there is a
-reasonable belief that an individual's behavior may have a negative impact on
-the project or its community.
+- GitHub issues, pull requests, comments, and discussions.
+- Project documentation and design discussions.
+- Internal collaboration channels when they are being used for this project.
+
+## Reporting
+
+If you experience or witness behavior that violates this Code of Conduct, report it privately to the project maintainers or through the appropriate internal Viitor Cloud reporting path. Please do not open a public issue for conduct reports.
+
+When reporting, include:
+
+- What happened.
+- When and where it happened.
+- Any relevant screenshots, links, or other context.
+- Whether there is an immediate safety or privacy concern.
+
+All reports will be reviewed as promptly and discreetly as possible.
+
+## Maintainer Responsibilities
+
+Project maintainers are responsible for clarifying and enforcing this Code of Conduct. They may take any action they deem appropriate in response to unacceptable behavior, including warning a contributor, removing content, restricting participation, or escalating through internal channels when needed.
+
+## Enforcement
+
+Enforcement decisions will aim to:
+
+- Protect affected people first.
+- Reduce the chance of repeated harm.
+- Be fair to the facts available.
+- Preserve a productive project environment.
+
+## Attribution
+
+This document is informed by the spirit of the Contributor Covenant and adapted for this repository's current collaboration model.

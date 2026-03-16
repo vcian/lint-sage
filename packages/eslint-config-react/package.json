@@ -1,0 +1,36 @@
+{
+  "name": "@vcian/eslint-config-react",
+  "version": "1.0.0",
+  "description": "Shared ESLint flat config for React + TypeScript projects by Viitor Cloud.",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vcian/lint-sage.git",
+    "directory": "packages/eslint-config-react"
+  },
+  "keywords": [
+    "eslint",
+    "eslint-config",
+    "react",
+    "typescript",
+    "flat-config"
+  ],
+  "peerDependencies": {
+    "eslint": ">=9.0.0",
+    "typescript": ">=5.0.0"
+  },
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-jsx-a11y": "^6.9.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-unused-imports": "^4.0.0"
+  }
+}

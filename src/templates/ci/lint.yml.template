@@ -1,0 +1,27 @@
+name: Lint
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: {{packageManager}}
+
+      - name: Install dependencies
+        run: {{installCommand}}
+
+      - name: Run lint
+        run: {{lintCommand}}
+
+      - name: Run format check
+        run: {{formatCheckCommand}}

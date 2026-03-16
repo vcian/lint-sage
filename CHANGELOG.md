@@ -1,9 +1,40 @@
+## 3.0.0
+
+_Unreleased_
+
+Complete rewrite of lint-sage as a stateful CLI with lifecycle management.
+
+### New Features
+
+- **`init` command** — interactive stack/variant selection, preset support (`--preset`), generates ESLint, Prettier, Husky, lint-staged, commitlint, VS Code, and GitHub Actions configs
+- **`update` command** — three-state merge model (auto-replace, keep, conflict) to safely update configs when org standards evolve
+- **`doctor` command** — health checks for managed files, dependency versions, Husky hooks, legacy configs, and shared config resolution; `--fix` flag for auto-repair
+- **`eject` command** — tracked removal of only lint-sage-managed files, dependencies, and scripts
+- **Monorepo support** — auto-detects Turborepo, Nx, npm/yarn/pnpm workspaces, Lerna; shared root configs with per-package ESLint
+- **Composable shared config packages** — `@vcian/eslint-config-react`, `@vcian/eslint-config-node`, `@vcian/eslint-config-angular`, `@vcian/prettier-config`, `@vcian/commitlint-config`
+- **`.lint-sage.json` state tracking** — records managed files, added dependencies/scripts, template hashes for safe updates and clean eject
+- **ESLint 9 flat config** — all generated configs use the flat config format
+- **Tilde-pinned dependency versioning** — allows patches, blocks unreviewed minor/major bumps
+- **`--dry-run`** — preview changes without writing files (init, update, eject)
+- **`--package-manager`** — override auto-detection for npm, pnpm, or yarn
+- **GitHub Actions CI workflow generation** — `.github/workflows/lint.yml` generated per stack
+
+### Breaking Changes
+
+- Minimum Node.js version raised to 20
+- All v2 config files (`config/` directory) removed — replaced by template-based generation in `src/templates/`
+- CLI is now command-based (`init`, `update`, `doctor`, `eject`) instead of the v2 single-command model
+- Generated ESLint configs use flat config format (ESLint 9.x) instead of legacy `.eslintrc.*`
+- Generated configs import shared config packages instead of inlining rules
+
+---
+
 ## 2.1.0
 
 _Feb 19, 2024_
 
 - add interface naming convention rule for nestjs
-- remove mix-operator rule for  Nest.
+- remove mix-operator rule for Nest.
 - change max-length from 200 to 120
 - add es5 value in trailingComma
 
@@ -18,7 +49,7 @@ _Jan 9, 2024_
 _Jan 8, 2024_
 
 - Remove 'multiline-ternary' rule of ESLint for Nestjs.
-- Add 'no-nested-ternary' rule of ESLint for  Nest.
+- Add 'no-nested-ternary' rule of ESLint for Nest.
 
 ## 2.0.0
 
