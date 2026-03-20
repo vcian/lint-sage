@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { dependencyVersions, type DependencyName } from '../constants/versions.js';
 import type { PackageManager, Stack, Variant } from '../types.js';
 
+const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
 type DependenciesTemplate = {
   devDependencies: Record<string, string>;
   scripts: Record<string, string>;
@@ -181,4 +183,17 @@ export async function readMonorepoDependenciesTemplate(): Promise<{
     devDependencies: Record<string, string>;
     scripts: Record<string, string>;
   };
+}
+
+export async function readEjectedConfigFile(
+  stack: Stack,
+  fileName: string,
+): Promise<string> {
+  const configLintRoot = path.join(packageRoot, 'config', 'lint');
+  const filePath =
+    fileName === 'eslint.config.js'
+      ? path.join(configLintRoot, `${stack}.eslint.config.js`)
+      : path.join(configLintRoot, fileName);
+
+  return await readFile(filePath, 'utf8');
 }

@@ -2,11 +2,11 @@
 
 ## Added Dependencies
 
-Dependency names recorded in `.lint-sage.json` because lint-sage actually added them to `package.json`. They are used so `eject` can remove only tracked entries instead of deleting everything that happens to match a template.
+Dependency names recorded in `.lint-sage.json` because lint-sage actually added them to `package.json`. During `eject`, only tracked dependencies prefixed with `@vcian/` are removed — all other tracked dependencies (ESLint plugins, Prettier, etc.) are preserved so the project remains functional after detaching.
 
 ## Added Scripts
 
-Script names recorded in `.lint-sage.json` because lint-sage actually added them to `package.json`. Like added dependencies, these allow safe cleanup during `eject`.
+Script names recorded in `.lint-sage.json` because lint-sage actually added them to `package.json`. Scripts remain tracked for schema stability, but `eject` keeps all scripts unchanged since the project still needs them after detaching from lint-sage.
 
 ## Auto-replace
 
@@ -34,7 +34,7 @@ A command mode that calculates and prints what lint-sage would do without writin
 
 ## Eject
 
-The command that removes lint-sage-managed config files, tracked dependency entries, tracked script entries, and the `.lint-sage.json` state file from a project.
+The command that inlines all hidden configuration (replacing `@vcian/*` imports with visible rules), removes only tracked `@vcian/*` wrapper dependencies, keeps all other files and scripts, and deletes the `.lint-sage.json` state file.
 
 ## Generated Config
 

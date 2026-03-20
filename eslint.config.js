@@ -35,7 +35,7 @@ export default [
     },
   },
   {
-    files: ['src/templates/**/*.js'],
+    files: ['src/templates/**/*.js', 'config/lint/**/*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'commonjs',

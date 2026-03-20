@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@vcian/lint-sage)](https://www.npmjs.com/package/@vcian/lint-sage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-CLI for bootstrapping and maintaining consistent linting, formatting, commit, editor, and CI standards across Viitor Cloud TypeScript projects. Set up once with `init`, keep healthy with `update` and `doctor`, and cleanly remove with `eject`.
+CLI for bootstrapping and maintaining consistent linting, formatting, commit, editor, and CI standards across Viitor Cloud TypeScript projects. Set up once with `init`, keep healthy with `update` and `doctor`, and eject to take full control with `eject`.
 
 ## Prerequisites
 
@@ -75,7 +75,7 @@ npx @vcian/lint-sage doctor [options]
 
 ### `eject`
 
-Cleanly removes all lint-sage-managed files and `package.json` entries.
+Ejects from lint-sage by inlining all hidden configuration and removing only `@vcian/*` wrapper dependencies. Config files are replaced with standalone versions containing all rules directly, scripts are kept, and `.lint-sage.json` is deleted.
 
 ```bash
 npx @vcian/lint-sage eject [options]
@@ -165,13 +165,14 @@ Dependencies are tilde-pinned (e.g., `~9.22.0`) to allow patch updates within a 
 
 ## Ejecting
 
-`eject` removes only what lint-sage added:
+`eject` inlines all hidden configuration and detaches from lint-sage management:
 
-- Managed config files (ESLint, Prettier, Husky, lint-staged, commitlint, VS Code, CI)
-- `devDependencies` and scripts that lint-sage added to `package.json`
-- `.lint-sage.json` state file
+- **Replaced** — `eslint.config.js`, `prettier.config.js`, and `.commitlintrc.json` are rewritten with all rules visible (no `@vcian/*` imports)
+- **Kept** — Husky hooks, lint-staged, VS Code settings, CI workflow, scripts, and non-`@vcian/*` dependencies remain unchanged
+- **Removed** — only tracked `@vcian/*` wrapper dependencies are removed from `package.json`
+- **Deleted** — `.lint-sage.json` state file
 
-Pre-existing config and dependencies are preserved.
+After eject, the project is fully standalone with no dependency on lint-sage.
 
 ## Contributing
 

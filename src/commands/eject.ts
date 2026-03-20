@@ -1,10 +1,33 @@
-import { readdir, readFile, rmdir, unlink, writeFile } from 'node:fs/promises';
+import { readFile, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { confirm } from '@inquirer/prompts';
 
-import type { GlobalOptions, LintSageMonorepoState, LintSageState } from '../types.js';
-import { isMonorepoState, readStateFile } from '../utils/state.js';
+import type {
+  GlobalOptions,
+  LintSageMonorepoState,
+  LintSageState,
+  Stack,
+} from '../types.js';
+import { hashContent, isMonorepoState, readStateFile } from '../utils/state.js';
+import { readEjectedConfigFile } from '../utils/template-loader.js';
+
+const EJECTABLE_FILES = new Set(['eslint.config.js', 'prettier.config.js', '.commitlintrc.json']);
+const VCIAN_PACKAGE_PREFIX = '@vcian/';
+
+interface EjectFileEntry {
+  path: string;
+  scope: string;
+  stack?: Stack;
+  modified: boolean;
+}
+
+interface EjectPlan {
+  filesToReplace: EjectFileEntry[];
+  filesToKeep: string[];
+  filesMissing: string[];
+  depsToRemove: string[];
+}
 
 function sortRecord(record: Record<string, string>): Record<string, string> {
   return Object.fromEntries(Object.entries(record).sort(([a], [b]) => a.localeCompare(b)));
@@ -20,174 +43,172 @@ async function pathExists(filePath: string): Promise<boolean> {
   }
 }
 
-async function tryRemoveEmptyDir(dirPath: string): Promise<void> {
-  try {
-    const entries = await readdir(dirPath);
-
-    if (entries.length === 0) {
-      await rmdir(dirPath);
-    }
-  } catch {
-    // Directory doesn't exist or can't be read — ignore.
-  }
-}
-
-function collectManagedFilePaths(state: LintSageState | LintSageMonorepoState): string[] {
+function getStackForState(state: LintSageState | LintSageMonorepoState): Stack | undefined {
   if (!isMonorepoState(state)) {
-    return Object.keys(state.managedFiles);
+    return state.stack;
   }
-
-  return [
-    ...Object.keys(state.managedFiles),
-    ...Object.entries(state.packages).flatMap(([packagePath, packageConfig]) =>
-      Object.keys(packageConfig.managedFiles).map((filePath) =>
-        path.posix.join(packagePath, filePath),
-      ),
-    ),
-  ].sort();
+  return undefined;
 }
 
-function printEjectSummary(state: LintSageState | LintSageMonorepoState, dryRun: boolean): void {
-  const prefix = dryRun ? '[dry-run] ' : '';
-
-  console.log(`${prefix}The following will be removed:`);
-  console.log('');
-  console.log(`${prefix}Config files:`);
-
-  for (const filePath of collectManagedFilePaths(state)) {
-    console.log(`  - ${filePath}`);
-  }
-
-  console.log('  - .lint-sage.json');
-
-  if (state.addedDependencies.length > 0) {
-    console.log('');
-    console.log(`${prefix}devDependencies from package.json:`);
-
-    for (const dep of state.addedDependencies) {
-      console.log(`  - ${dep}`);
-    }
-  }
-
-  if (state.addedScripts.length > 0) {
-    console.log('');
-    console.log(`${prefix}Scripts from package.json:`);
-
-    for (const script of state.addedScripts) {
-      console.log(`  - ${script}`);
-    }
-  }
-}
-
-async function cleanPackageJson(
+async function classifyEjectActions(
   targetDirectory: string,
   state: LintSageState | LintSageMonorepoState,
-  dryRun: boolean,
+): Promise<EjectPlan> {
+  const filesToReplace: EjectFileEntry[] = [];
+  const filesToKeep: string[] = [];
+  const filesMissing: string[] = [];
+
+  // Process root-level managed files
+  for (const [fileName, fileRecord] of Object.entries(state.managedFiles)) {
+    const fullPath = path.join(targetDirectory, fileName);
+
+    if (EJECTABLE_FILES.has(fileName)) {
+      if (!(await pathExists(fullPath))) {
+        filesMissing.push(fileName);
+        continue;
+      }
+
+      const currentContent = await readFile(fullPath, 'utf8');
+      const currentHash = hashContent(currentContent);
+      const modified = currentHash !== fileRecord.lastAppliedHash;
+
+      filesToReplace.push({
+        path: fileName,
+        scope: '',
+        stack: getStackForState(state),
+        modified,
+      });
+    } else {
+      filesToKeep.push(fileName);
+    }
+  }
+
+  // Process per-package managed files (monorepo)
+  if (isMonorepoState(state)) {
+    for (const [packagePath, packageConfig] of Object.entries(state.packages)) {
+      for (const [fileName, fileRecord] of Object.entries(packageConfig.managedFiles)) {
+        const scopedPath = path.posix.join(packagePath, fileName);
+        const fullPath = path.join(targetDirectory, scopedPath);
+
+        if (EJECTABLE_FILES.has(fileName)) {
+          if (!(await pathExists(fullPath))) {
+            filesMissing.push(scopedPath);
+            continue;
+          }
+
+          const currentContent = await readFile(fullPath, 'utf8');
+          const currentHash = hashContent(currentContent);
+          const modified = currentHash !== fileRecord.lastAppliedHash;
+
+          filesToReplace.push({
+            path: scopedPath,
+            scope: packagePath,
+            stack: packageConfig.stack,
+            modified,
+          });
+        } else {
+          filesToKeep.push(scopedPath);
+        }
+      }
+    }
+  }
+
+  // Filter dependencies: only remove @vcian/* packages that were tracked
+  const depsToRemove = state.addedDependencies.filter((dep) =>
+    dep.startsWith(VCIAN_PACKAGE_PREFIX),
+  );
+
+  return { filesToReplace, filesToKeep, filesMissing, depsToRemove };
+}
+
+function getEjectSourceLabel(fileName: string, stack?: Stack): string {
+  if (fileName === 'eslint.config.js' && stack) {
+    return `inlined from @vcian/eslint-config-${stack}`;
+  }
+  if (fileName === 'prettier.config.js') {
+    return 'inlined settings';
+  }
+  return 'inlined';
+}
+
+function printEjectSummary(plan: EjectPlan, dryRun: boolean): void {
+  const prefix = dryRun ? '[dry-run] ' : '';
+
+  for (const entry of plan.filesToReplace) {
+    const baseName = path.basename(entry.path);
+    const label = getEjectSourceLabel(baseName, entry.stack);
+    const modifiedNote = entry.modified
+      ? dryRun
+        ? ' (modified — manual edits will be overwritten)'
+        : ''
+      : '';
+    console.log(`${prefix}Would replace ${entry.path} (${label})${modifiedNote}`);
+  }
+
+  for (const filePath of plan.filesToKeep) {
+    console.log(`${prefix}Would keep ${filePath} (unchanged)`);
+  }
+
+  for (const filePath of plan.filesMissing) {
+    console.log(`${prefix}Would skip ${filePath} (not found on disk)`);
+  }
+
+  for (const dep of plan.depsToRemove) {
+    console.log(`${prefix}Would remove dependency ${dep}`);
+  }
+
+  console.log(`${prefix}Would delete .lint-sage.json`);
+}
+
+async function replaceEjectableFiles(
+  targetDirectory: string,
+  plan: EjectPlan,
 ): Promise<void> {
+  for (const entry of plan.filesToReplace) {
+    const baseName = path.basename(entry.path);
+    const fullPath = path.join(targetDirectory, entry.path);
+
+    if (entry.modified) {
+      const label = getEjectSourceLabel(baseName, entry.stack);
+      console.log(
+        `⚠ ${entry.path} has been modified since last init/update — replacing with ${label}`,
+      );
+    }
+
+    const ejectedContent = await readEjectedConfigFile(entry.stack ?? 'node', baseName);
+    await writeFile(fullPath, ejectedContent, 'utf8');
+    console.log(`✔ Replaced ${entry.path}`);
+  }
+
+  for (const filePath of plan.filesMissing) {
+    console.log(
+      `⚠ ${filePath} not found — skipping replacement (inlined version not written)`,
+    );
+  }
+}
+
+async function removeVcianDependencies(
+  targetDirectory: string,
+  depsToRemove: string[],
+): Promise<void> {
+  if (depsToRemove.length === 0) {
+    return;
+  }
+
   const packageJsonPath = path.join(targetDirectory, 'package.json');
   const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8')) as {
     devDependencies?: Record<string, string>;
-    scripts?: Record<string, string>;
     [key: string]: unknown;
   };
 
   const devDeps = { ...(packageJson.devDependencies ?? {}) };
-  const scripts = { ...(packageJson.scripts ?? {}) };
 
-  for (const dep of state.addedDependencies) {
+  for (const dep of depsToRemove) {
     delete devDeps[dep];
   }
 
-  for (const script of state.addedScripts) {
-    delete scripts[script];
-  }
-
   packageJson.devDependencies = sortRecord(devDeps);
-  packageJson.scripts = sortRecord(scripts);
-
-  if (!dryRun) {
-    await writeFile(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`, 'utf8');
-  }
-}
-
-async function deleteManagedFilesInScope(
-  targetDirectory: string,
-  baseDirectory: string,
-  managedFilePaths: string[],
-  dryRun: boolean,
-  dirsToCheck: Set<string>,
-): Promise<void> {
-  const prefix = dryRun ? '[dry-run] Would delete' : '✔ Deleted';
-
-  for (const filePath of managedFilePaths) {
-    const scopedFilePath = baseDirectory ? path.posix.join(baseDirectory, filePath) : filePath;
-    const fullPath = path.join(targetDirectory, scopedFilePath);
-
-    if (await pathExists(fullPath)) {
-      if (!dryRun) {
-        await unlink(fullPath);
-      }
-
-      console.log(`${prefix} ${scopedFilePath}`);
-    }
-
-    const dirName = path.dirname(scopedFilePath);
-
-    if (dirName !== '.') {
-      dirsToCheck.add(path.join(targetDirectory, dirName));
-
-      const parentDir = path.dirname(dirName);
-
-      if (parentDir !== '.') {
-        dirsToCheck.add(path.join(targetDirectory, parentDir));
-      }
-    }
-  }
-}
-
-async function deleteManagedFiles(
-  targetDirectory: string,
-  state: LintSageState | LintSageMonorepoState,
-  dryRun: boolean,
-): Promise<void> {
-  const dirsToCheck = new Set<string>();
-
-  await deleteManagedFilesInScope(
-    targetDirectory,
-    '',
-    Object.keys(state.managedFiles),
-    dryRun,
-    dirsToCheck,
-  );
-
-  if (isMonorepoState(state)) {
-    for (const [packagePath, packageConfig] of Object.entries(state.packages)) {
-      await deleteManagedFilesInScope(
-        targetDirectory,
-        packagePath,
-        Object.keys(packageConfig.managedFiles),
-        dryRun,
-        dirsToCheck,
-      );
-    }
-  }
-
-  const prefix = dryRun ? '[dry-run] Would delete' : '✔ Deleted';
-  const statePath = path.join(targetDirectory, '.lint-sage.json');
-
-  if (!dryRun && (await pathExists(statePath))) {
-    await unlink(statePath);
-  }
-
-  console.log(`${prefix} .lint-sage.json`);
-
-  if (!dryRun) {
-    const sortedDirs = [...dirsToCheck].sort((a, b) => b.length - a.length);
-
-    for (const dir of sortedDirs) {
-      await tryRemoveEmptyDir(dir);
-    }
-  }
+  await writeFile(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`, 'utf8');
 }
 
 export async function handleEject(options: GlobalOptions): Promise<number> {
@@ -195,8 +216,9 @@ export async function handleEject(options: GlobalOptions): Promise<number> {
 
   try {
     const state = await readStateFile(targetDirectory);
+    const plan = await classifyEjectActions(targetDirectory, state);
 
-    printEjectSummary(state, Boolean(options.dryRun));
+    printEjectSummary(plan, Boolean(options.dryRun));
 
     if (options.dryRun) {
       return 0;
@@ -216,10 +238,25 @@ export async function handleEject(options: GlobalOptions): Promise<number> {
     }
 
     console.log('');
-    await cleanPackageJson(targetDirectory, state, false);
-    console.log('✔ Cleaned package.json');
 
-    await deleteManagedFiles(targetDirectory, state, false);
+    // Replace ejectable config files with inlined versions
+    await replaceEjectableFiles(targetDirectory, plan);
+
+    // Remove only @vcian/* dependencies
+    await removeVcianDependencies(targetDirectory, plan.depsToRemove);
+
+    if (plan.depsToRemove.length > 0) {
+      console.log(`✔ Removed ${plan.depsToRemove.length} @vcian/* dependencies from package.json`);
+    }
+
+    // Delete .lint-sage.json
+    const statePath = path.join(targetDirectory, '.lint-sage.json');
+
+    if (await pathExists(statePath)) {
+      await unlink(statePath);
+    }
+
+    console.log('✔ Deleted .lint-sage.json');
 
     console.log('');
     console.log("Run your package manager's install command to clean up removed dependencies.");

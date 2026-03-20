@@ -132,10 +132,25 @@ describe('E2E lifecycle', () => {
       // Verify .lint-sage.json is gone
       expect(await pathExists(path.join(tempDir, '.lint-sage.json'))).toBe(false);
 
-      // Verify config files are gone
-      expect(await pathExists(path.join(tempDir, 'eslint.config.js'))).toBe(false);
-      expect(await pathExists(path.join(tempDir, 'prettier.config.js'))).toBe(false);
-      expect(await pathExists(path.join(tempDir, '.commitlintrc.json'))).toBe(false);
+      // Config files should still exist with inlined content
+      expect(await pathExists(path.join(tempDir, 'eslint.config.js'))).toBe(true);
+      expect(await pathExists(path.join(tempDir, 'prettier.config.js'))).toBe(true);
+      expect(await pathExists(path.join(tempDir, '.commitlintrc.json'))).toBe(true);
+
+      // eslint.config.js should have inlined rules, not @vcian reference
+      const eslintConfig = await readFile(path.join(tempDir, 'eslint.config.js'), 'utf8');
+      expect(eslintConfig).toContain('module.exports');
+      expect(eslintConfig).toContain('react-hooks');
+      expect(eslintConfig).not.toContain('@vcian/eslint-config');
+
+      // prettier.config.js should be fully inlined
+      const prettierConfig = await readFile(path.join(tempDir, 'prettier.config.js'), 'utf8');
+      expect(prettierConfig).toContain('printWidth');
+      expect(prettierConfig).not.toContain('@vcian/prettier-config');
+
+      // .commitlintrc.json should extend @commitlint/config-conventional
+      const commitlintConfig = await readFile(path.join(tempDir, '.commitlintrc.json'), 'utf8');
+      expect(commitlintConfig).toContain('@commitlint/config-conventional');
     } finally {
       consoleSilencer.restore();
     }
@@ -202,9 +217,17 @@ describe('E2E lifecycle', () => {
 
       // Verify clean state
       expect(await pathExists(path.join(tempDir, '.lint-sage.json'))).toBe(false);
-      expect(await pathExists(path.join(tempDir, 'eslint.config.js'))).toBe(false);
-      expect(await pathExists(path.join(tempDir, 'prettier.config.js'))).toBe(false);
-      expect(await pathExists(path.join(tempDir, '.commitlintrc.json'))).toBe(false);
+
+      // Config files should still exist with inlined content
+      expect(await pathExists(path.join(tempDir, 'eslint.config.js'))).toBe(true);
+      expect(await pathExists(path.join(tempDir, 'prettier.config.js'))).toBe(true);
+      expect(await pathExists(path.join(tempDir, '.commitlintrc.json'))).toBe(true);
+
+      // eslint.config.js should have inlined node rules
+      const ejectedEslint = await readFile(path.join(tempDir, 'eslint.config.js'), 'utf8');
+      expect(ejectedEslint).toContain('eslint-plugin-n');
+      expect(ejectedEslint).toContain('eslint-plugin-security');
+      expect(ejectedEslint).not.toContain('@vcian/eslint-config-node');
     } finally {
       consoleSilencer.restore();
     }
@@ -332,8 +355,32 @@ describe('E2E lifecycle', () => {
 
       expect(ejectExitCode).toBe(0);
       expect(await pathExists(path.join(tempDir, '.lint-sage.json'))).toBe(false);
-      expect(await pathExists(path.join(tempDir, 'prettier.config.js'))).toBe(false);
-      expect(await pathExists(path.join(tempDir, 'apps', 'web', 'eslint.config.js'))).toBe(false);
+
+      // Root prettier should still exist and be inlined
+      expect(await pathExists(path.join(tempDir, 'prettier.config.js'))).toBe(true);
+      const prettierConfig = await readFile(path.join(tempDir, 'prettier.config.js'), 'utf8');
+      expect(prettierConfig).toContain('printWidth');
+      expect(prettierConfig).not.toContain('@vcian/prettier-config');
+
+      // Root .commitlintrc.json should still exist and extend @commitlint/config-conventional
+      expect(await pathExists(path.join(tempDir, '.commitlintrc.json'))).toBe(true);
+      const commitlintConfig = await readFile(path.join(tempDir, '.commitlintrc.json'), 'utf8');
+      expect(commitlintConfig).toContain('@commitlint/config-conventional');
+
+      // Per-package eslint.config.js files should still exist with stack-specific rules
+      expect(await pathExists(path.join(tempDir, 'apps', 'web', 'eslint.config.js'))).toBe(true);
+      const webEslint = await readFile(
+        path.join(tempDir, 'apps', 'web', 'eslint.config.js'),
+        'utf8',
+      );
+      expect(webEslint).toContain('react-hooks');
+
+      expect(await pathExists(path.join(tempDir, 'apps', 'api', 'eslint.config.js'))).toBe(true);
+      const apiEslint = await readFile(
+        path.join(tempDir, 'apps', 'api', 'eslint.config.js'),
+        'utf8',
+      );
+      expect(apiEslint).toContain('eslint-plugin-n');
     } finally {
       consoleSilencer.restore();
     }

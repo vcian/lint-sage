@@ -15,7 +15,7 @@ const COMMAND_DESCRIPTIONS: Record<CommandName, string> = {
   init: 'Initialize lint-sage in a project',
   update: 'Update an existing lint-sage setup',
   doctor: 'Check the health of a lint-sage setup',
-  eject: 'Remove lint-sage-managed configuration',
+  eject: 'Eject from lint-sage — inline all configuration and take full control',
 };
 
 const FLAG_LABELS: Record<keyof GlobalOptions, string> = {

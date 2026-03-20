@@ -9,7 +9,7 @@ Complete rewrite of lint-sage as a stateful CLI with lifecycle management.
 - **`init` command** — interactive stack/variant selection, preset support (`--preset`), generates ESLint, Prettier, Husky, lint-staged, commitlint, VS Code, and GitHub Actions configs
 - **`update` command** — three-state merge model (auto-replace, keep, conflict) to safely update configs when org standards evolve
 - **`doctor` command** — health checks for managed files, dependency versions, Husky hooks, legacy configs, and shared config resolution; `--fix` flag for auto-repair
-- **`eject` command** — tracked removal of only lint-sage-managed files, dependencies, and scripts
+- **`eject` command** — inlines all hidden configuration (ESLint, Prettier, commitlint) into standalone config files, removes only `@vcian/*` wrapper dependencies, keeps scripts and non-ejectable files (Husky, VS Code, lint-staged, CI), and deletes `.lint-sage.json`. Supports drift detection, `--dry-run`, and monorepo per-package ejection
 - **Monorepo support** — auto-detects Turborepo, Nx, npm/yarn/pnpm workspaces, Lerna; shared root configs with per-package ESLint
 - **Composable shared config packages** — `@vcian/eslint-config-react`, `@vcian/eslint-config-node`, `@vcian/eslint-config-angular`, `@vcian/prettier-config`, `@vcian/commitlint-config`
 - **`.lint-sage.json` state tracking** — records managed files, added dependencies/scripts, template hashes for safe updates and clean eject

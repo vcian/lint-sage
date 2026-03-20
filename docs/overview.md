@@ -74,7 +74,7 @@ lint-sage is built around four core commands:
 - `doctor`
   Checks whether the setup is healthy and reports warnings or failures.
 - `eject`
-  Removes lint-sage-managed files and tracked `package.json` entries cleanly.
+  Inlines all hidden configuration, removes only `@vcian/*` wrapper dependencies, and deletes `.lint-sage.json`.
 
 ## Key Principles
 
@@ -95,7 +95,7 @@ Many scaffolding tools help only once, at project creation time. lint-sage is di
 - update templates safely when org standards change
 - warn about version drift and missing files
 - re-generate known config when repairs are possible
-- remove only the entries it originally added during `eject`
+- inline hidden config and remove only `@vcian/*` wrappers during `eject`
 
 This maintenance model is one of the main differentiators of the project.
 

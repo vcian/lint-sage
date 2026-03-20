@@ -111,6 +111,8 @@ During `init`, lint-sage compares the stack's `dependencies.json` template again
 
 During `update`, if lint-sage adds new dependencies or scripts that were not in the original template, the new entries are appended to `addedDependencies` and `addedScripts`.
 
+During `eject`, only tracked dependencies prefixed with `@vcian/` are removed — all other tracked dependencies and scripts are preserved so the project remains functional after detaching from lint-sage.
+
 ### Single-Project State Example
 
 ```json
@@ -302,10 +304,12 @@ After `--fix` completes, lint-sage prints a reminder to run the project's packag
 The `eject` flow is roughly:
 
 1. Read `.lint-sage.json`.
-2. Determine which files, dependencies, and scripts are lint-sage-managed.
-3. Confirm the removal plan unless forced.
-4. Remove tracked files and tracked `package.json` entries.
-5. Delete `.lint-sage.json` last.
+2. Classify managed files as ejectable (ESLint, Prettier, commitlint configs) or non-ejectable (Husky, VS Code, lint-staged, CI).
+3. Check for drift by comparing current file hashes against `lastAppliedHash` — warn if files were manually edited.
+4. Confirm the eject plan unless forced.
+5. Replace ejectable config files with inlined versions (all rules visible, no `@vcian/*` imports). Non-ejectable files are kept unchanged.
+6. Remove only tracked `@vcian/*` wrapper dependencies from `package.json`. All other dependencies and scripts are preserved.
+7. Delete `.lint-sage.json`.
 
 ## `--dry-run` Behavior
 
