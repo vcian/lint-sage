@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@vcian/lint-sage)](https://www.npmjs.com/package/@vcian/lint-sage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-CLI for bootstrapping and maintaining consistent linting, formatting, commit, editor, and CI standards across Viitor Cloud TypeScript projects. Set up once with `init`, keep healthy with `update` and `doctor`, and eject to take full control with `eject`.
+CLI for bootstrapping and maintaining consistent linting, formatting, commit, editor, and CI standards across TypeScript projects. Set up once with `init`, keep healthy with `update` and `doctor`, and eject to take full control with `eject`.
 
 ## Prerequisites
 
@@ -38,11 +38,11 @@ npm install   # or pnpm install / yarn install
 
 ## What Gets Configured
 
-- **ESLint** — stack-specific flat config via shared config packages
-- **Prettier** — consistent formatting via `@vcian/prettier-config`
+- **ESLint** — stack-specific flat config with fully ejected rules
+- **Prettier** — consistent local formatting config
 - **Husky** — pre-commit and commit-msg hooks
 - **lint-staged** — run linters on staged files only
-- **commitlint** — enforce Conventional Commits via `@vcian/commitlint-config`
+- **commitlint** — enforce Conventional Commits via `@commitlint/config-conventional`
 - **VS Code** — workspace settings and extension recommendations
 - **GitHub Actions** — `.github/workflows/ci.yml` CI workflow
 - **package.json** — `devDependencies` and lint/format scripts
@@ -75,7 +75,7 @@ npx @vcian/lint-sage doctor [options]
 
 ### `eject`
 
-Ejects from lint-sage by inlining all hidden configuration and removing only `@vcian/*` wrapper dependencies. Config files are replaced with standalone versions containing all rules directly, scripts are kept, and `.lint-sage.json` is deleted.
+Ejects from lint-sage by inlining all managed configuration into standalone files. Scripts are kept and `.lint-sage.json` is deleted.
 
 ```bash
 npx @vcian/lint-sage eject [options]
@@ -138,19 +138,15 @@ npx @vcian/lint-sage init --preset "apps/web:next-js,apps/api:nestjs,packages/sh
 
 Root gets shared configs (Prettier, Husky, commitlint, lint-staged, VS Code, CI). Each package gets its own `eslint.config.js` matching its stack.
 
-## Shared Config Packages
+## Template Output
 
-lint-sage generates config files that reference these shared packages:
+Generated templates are standalone by default:
 
-| Package                        | Purpose                             |
-| ------------------------------ | ----------------------------------- |
-| `@vcian/eslint-config-react`   | ESLint flat config for React + TS   |
-| `@vcian/eslint-config-node`    | ESLint flat config for Node + TS    |
-| `@vcian/eslint-config-angular` | ESLint flat config for Angular + TS |
-| `@vcian/prettier-config`       | Shared Prettier formatting rules    |
-| `@vcian/commitlint-config`     | Conventional Commits enforcement    |
+- `eslint.config.js` includes stack rules directly (Node/React/Angular)
+- `prettier.config.js` uses local config values
+- `.commitlintrc.json` extends `@commitlint/config-conventional`
 
-These packages work standalone — any project can install and wire them manually without lint-sage.
+This avoids private package resolution issues in downstream projects.
 
 ## `.lint-sage.json`
 
@@ -165,11 +161,10 @@ Dependencies are tilde-pinned (e.g., `~9.22.0`) to allow patch updates within a 
 
 ## Ejecting
 
-`eject` inlines all hidden configuration and detaches from lint-sage management:
+`eject` inlines all managed configuration and detaches from lint-sage management:
 
-- **Replaced** — `eslint.config.js`, `prettier.config.js`, and `.commitlintrc.json` are rewritten with all rules visible (no `@vcian/*` imports)
-- **Kept** — Husky hooks, lint-staged, VS Code settings, CI workflow, scripts, and non-`@vcian/*` dependencies remain unchanged
-- **Removed** — only tracked `@vcian/*` wrapper dependencies are removed from `package.json`
+- **Replaced** — `eslint.config.js`, `prettier.config.js`, and `.commitlintrc.json` are rewritten with all rules visible
+- **Kept** — Husky hooks, lint-staged, VS Code settings, CI workflow, scripts, and existing project dependencies remain unchanged
 - **Deleted** — `.lint-sage.json` state file
 
 After eject, the project is fully standalone with no dependency on lint-sage.

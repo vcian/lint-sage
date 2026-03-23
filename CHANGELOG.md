@@ -4,6 +4,15 @@ _Unreleased_
 
 Complete rewrite of lint-sage as a stateful CLI with lifecycle management.
 
+### Fixes (Unreleased)
+
+- Generated templates are now fully self-contained (no runtime dependency packages).
+- `init` writes ejected `eslint.config.js` rules directly for Node, React, and Angular templates.
+- Commitlint templates now extend `@commitlint/config-conventional` directly.
+- Prettier templates now use local config values instead of importing `@vcian/prettier-config`.
+- Removed NestJS template dependency on `@darraghor/eslint-plugin-nestjs-typed` to avoid ESLint 9 peer conflicts.
+- Improved dependency compatibility behavior for init/update with dynamic ESLint/TypeScript-ESLint alignment and npm overrides.
+
 ### New Features
 
 - **`init` command** — interactive stack/variant selection, preset support (`--preset`), generates ESLint, Prettier, Husky, lint-staged, commitlint, VS Code, and GitHub Actions configs
