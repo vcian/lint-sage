@@ -1,5 +1,6 @@
-const vcianPrettier = require("@vcian/prettier-config");
-
 module.exports = {
-  ...vcianPrettier,
+  printWidth: 100,
+  semi: true,
+  singleQuote: true,
+  trailingComma: "all",
 };

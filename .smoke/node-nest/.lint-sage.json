@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "version": "3.0.0",
+  "packageManager": "npm",
+  "stack": "node",
+  "variant": "nestjs",
+  "managedFiles": {
+    ".commitlintrc.json": {
+      "template": "node/nestjs/.commitlintrc.json",
+      "lastAppliedHash": "sha256:274caad59d0f625a71b71d104572d3dbc42a1e7e99d2af22f138fa1519c9a3aa"
+    },
+    ".husky\\commit-msg": {
+      "template": "node/nestjs/.husky\\commit-msg",
+      "lastAppliedHash": "sha256:095c010c1f5e3ea313847ea9e9e3d0723650a90ac028d23803402c1aa75cc15b"
+    },
+    ".husky\\pre-commit": {
+      "template": "node/nestjs/.husky\\pre-commit",
+      "lastAppliedHash": "sha256:9b8f37d88f68e18d4f6fccd16c8199e37a6c6bf59ef70b3120cfe13f025c17bf"
+    },
+    ".lintstagedrc.json": {
+      "template": "node/nestjs/.lintstagedrc.json",
+      "lastAppliedHash": "sha256:d1b3684aaa6adf18db2c002ea35b07e18365c6fba7ce03353fb4824c602bbf1f"
+    },
+    ".vscode\\extensions.json": {
+      "template": "node/nestjs/.vscode\\extensions.json",
+      "lastAppliedHash": "sha256:4611c380c1a2203c372fccc2610e1a760c0a3fb6348a95536227d4200bbba261"
+    },
+    ".vscode\\settings.json": {
+      "template": "node/nestjs/.vscode\\settings.json",
+      "lastAppliedHash": "sha256:97299ad06dd9b2bf9dee28ddeec6a46d16c18d28b5dccbfd2f59bd67479c246b"
+    },
+    "eslint.config.js": {
+      "template": "node/nestjs/eslint.config.js",
+      "lastAppliedHash": "sha256:bb960482455de790f73ce8282e635354718aead54756b81e89ba854d6ca0a184"
+    },
+    "prettier.config.js": {
+      "template": "node/nestjs/prettier.config.js",
+      "lastAppliedHash": "sha256:71d38f69138aec1ff07f94062f8b5b4e8fd768d1fb3097b38c30bc9a7518bc0f"
+    },
+    ".github/workflows/lint.yml": {
+      "template": "ci/lint.yml.template",
+      "lastAppliedHash": "sha256:5dbc9daa73ce7f0bc54858cf5983f8b52e4e5e60a1586d33e4af2a89e560d2f5"
+    }
+  },
+  "addedDependencies": [
+    "@commitlint/cli",
+    "@commitlint/config-conventional",
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "eslint",
+    "eslint-config-prettier",
+    "eslint-plugin-import",
+    "eslint-plugin-n",
+    "eslint-plugin-security",
+    "husky",
+    "lint-staged",
+    "prettier"
+  ],
+  "addedScripts": [
+    "lint",
+    "lint:fix",
+    "format",
+    "format:check"
+  ],
+  "initializedAt": "2026-03-23T08:53:02.315Z",
+  "lastUpdatedAt": "2026-03-23T08:53:02.315Z"
+}

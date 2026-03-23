@@ -2,12 +2,8 @@
   "devDependencies": {
     "@commitlint/cli": "{{version:@commitlint/cli}}",
     "@commitlint/config-conventional": "{{version:@commitlint/config-conventional}}",
-    "@darraghor/eslint-plugin-nestjs-typed": "{{version:@darraghor/eslint-plugin-nestjs-typed}}",
     "@typescript-eslint/eslint-plugin": "{{version:@typescript-eslint/eslint-plugin}}",
     "@typescript-eslint/parser": "{{version:@typescript-eslint/parser}}",
-    "@vcian/commitlint-config": "{{version:@vcian/commitlint-config}}",
-    "@vcian/eslint-config-node": "{{version:@vcian/eslint-config-node}}",
-    "@vcian/prettier-config": "{{version:@vcian/prettier-config}}",
     "eslint": "{{version:eslint}}",
     "eslint-config-prettier": "{{version:eslint-config-prettier}}",
     "eslint-plugin-import": "{{version:eslint-plugin-import}}",

@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "version": "3.0.0",
+  "packageManager": "npm",
+  "stack": "angular",
+  "variant": "angular-standalone",
+  "managedFiles": {
+    ".commitlintrc.json": {
+      "template": "angular/angular-standalone/.commitlintrc.json",
+      "lastAppliedHash": "sha256:274caad59d0f625a71b71d104572d3dbc42a1e7e99d2af22f138fa1519c9a3aa"
+    },
+    ".husky\\commit-msg": {
+      "template": "angular/angular-standalone/.husky\\commit-msg",
+      "lastAppliedHash": "sha256:095c010c1f5e3ea313847ea9e9e3d0723650a90ac028d23803402c1aa75cc15b"
+    },
+    ".husky\\pre-commit": {
+      "template": "angular/angular-standalone/.husky\\pre-commit",
+      "lastAppliedHash": "sha256:9b8f37d88f68e18d4f6fccd16c8199e37a6c6bf59ef70b3120cfe13f025c17bf"
+    },
+    ".lintstagedrc.json": {
+      "template": "angular/angular-standalone/.lintstagedrc.json",
+      "lastAppliedHash": "sha256:97a1fdbd0132501096037656e8cf02d4d827cf1c92cc7c2781137429463fb1a0"
+    },
+    ".vscode\\extensions.json": {
+      "template": "angular/angular-standalone/.vscode\\extensions.json",
+      "lastAppliedHash": "sha256:93867928937876feefc6a2ef0b6a59f5eb221923734ee72191d70764556cc6be"
+    },
+    ".vscode\\settings.json": {
+      "template": "angular/angular-standalone/.vscode\\settings.json",
+      "lastAppliedHash": "sha256:55248a96b0114ee91df5d60c82a50e7c62696f32e7ca21ff43f79953597e6362"
+    },
+    "eslint.config.js": {
+      "template": "angular/angular-standalone/eslint.config.js",
+      "lastAppliedHash": "sha256:2a379920ffd16cc95a2064fa8df2ea3124def73e9806107bfeef574f0175d5b2"
+    },
+    "prettier.config.js": {
+      "template": "angular/angular-standalone/prettier.config.js",
+      "lastAppliedHash": "sha256:71d38f69138aec1ff07f94062f8b5b4e8fd768d1fb3097b38c30bc9a7518bc0f"
+    },
+    ".github/workflows/lint.yml": {
+      "template": "ci/lint.yml.template",
+      "lastAppliedHash": "sha256:5dbc9daa73ce7f0bc54858cf5983f8b52e4e5e60a1586d33e4af2a89e560d2f5"
+    }
+  },
+  "addedDependencies": [
+    "@angular-eslint/builder",
+    "@angular-eslint/eslint-plugin",
+    "@angular-eslint/eslint-plugin-template",
+    "@angular-eslint/template-parser",
+    "@commitlint/cli",
+    "@commitlint/config-conventional",
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "eslint",
+    "eslint-config-prettier",
+    "eslint-plugin-import",
+    "husky",
+    "lint-staged",
+    "prettier"
+  ],
+  "addedScripts": [
+    "lint",
+    "lint:fix",
+    "format",
+    "format:check"
+  ],
+  "initializedAt": "2026-03-23T08:51:42.677Z",
+  "lastUpdatedAt": "2026-03-23T08:51:42.677Z"
+}
