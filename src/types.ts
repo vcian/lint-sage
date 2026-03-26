@@ -13,6 +13,8 @@ export interface GlobalOptions {
   packageManager?: PackageManager;
   monorepo?: boolean;
   fix?: boolean;
+  fixCompat?: boolean;
+  skipSharedCheck?: boolean;
 }
 
 export interface WriteConfigsOptions {

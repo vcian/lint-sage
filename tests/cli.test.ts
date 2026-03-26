@@ -59,6 +59,8 @@ describe('createProgram', () => {
     expect(helpOutput).toContain('eject');
     expect(helpOutput).toContain('--force');
     expect(helpOutput).toContain('--package-manager <value>');
+    expect(helpOutput).toContain('--fix-compat');
+    expect(helpOutput).toContain('--skip-shared-check');
   });
 });
 
@@ -265,6 +267,8 @@ describe('run', () => {
         '--package-manager',
         'pnpm',
         '--monorepo',
+        '--fix-compat',
+        '--skip-shared-check',
         '--fix',
       ]);
 
@@ -272,10 +276,12 @@ describe('run', () => {
       expect(mockedInitHandler).toHaveBeenCalledWith({
         dryRun: true,
         fix: true,
+        fixCompat: true,
         force: true,
         monorepo: true,
         packageManager: 'pnpm',
         preset: 'next-js',
+        skipSharedCheck: true,
         verbose: true,
       });
       expect(capture.stderr).toContain('Warning: --fix is not supported by "init".');

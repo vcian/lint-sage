@@ -6,6 +6,14 @@ import type { Stack, Variant } from '../types.js';
 type PackageJsonShape = {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
+  [key: string]: unknown;
+};
+
+export type CompatibilityAutoFix = {
+  dependencyName: string;
+  from: string | null;
+  to: string;
+  reason: string;
 };
 
 function getVersion(
@@ -64,6 +72,75 @@ export function collectInitCompatibilityIssues(
   }
 
   return { errors, warnings };
+}
+
+export function collectInitCompatibilityAutoFixes(
+  packageJson: PackageJsonShape,
+): CompatibilityAutoFix[] {
+  const fixes: CompatibilityAutoFix[] = [];
+  const tsVersion = getVersion(packageJson, 'typescript');
+  const tsJestVersion = getVersion(packageJson, 'ts-jest');
+  const eslintVersion = getVersion(packageJson, 'eslint');
+  const typescriptEslintMeta = getVersion(packageJson, 'typescript-eslint');
+  const typescriptEslintPlugin = getVersion(packageJson, '@typescript-eslint/eslint-plugin');
+
+  const tsMajor = tsVersion ? parseMajor(tsVersion) : null;
+  const tsJestMajor = tsJestVersion ? parseMajor(tsJestVersion) : null;
+  const eslintMajor = eslintVersion ? parseMajor(eslintVersion) : null;
+  const tsEslintMetaMajor = typescriptEslintMeta ? parseMajor(typescriptEslintMeta) : null;
+  const tsEslintPluginMajor = typescriptEslintPlugin ? parseMajor(typescriptEslintPlugin) : null;
+
+  if (tsMajor !== null && tsMajor >= 6 && tsJestMajor === 29) {
+    fixes.push({
+      dependencyName: 'typescript',
+      from: tsVersion,
+      to: '~5.9.3',
+      reason: 'ts-jest@29 supports TypeScript < 6',
+    });
+  }
+
+  if (eslintMajor !== null && eslintMajor >= 10 && (tsEslintMetaMajor === 8 || tsEslintPluginMajor === 8)) {
+    fixes.push({
+      dependencyName: 'eslint',
+      from: eslintVersion,
+      to: '~9.22.0',
+      reason: '@typescript-eslint v8 supports eslint ^8.57 || ^9',
+    });
+  }
+
+  return fixes;
+}
+
+export function applyInitCompatibilityAutoFixes(
+  packageJson: PackageJsonShape,
+  fixes: CompatibilityAutoFix[],
+): PackageJsonShape {
+  if (fixes.length === 0) {
+    return packageJson;
+  }
+
+  const nextDevDependencies = { ...(packageJson.devDependencies ?? {}) };
+  const nextDependencies = { ...(packageJson.dependencies ?? {}) };
+
+  for (const fix of fixes) {
+    if (fix.dependencyName in nextDevDependencies) {
+      nextDevDependencies[fix.dependencyName] = fix.to;
+      continue;
+    }
+
+    if (fix.dependencyName in nextDependencies) {
+      nextDependencies[fix.dependencyName] = fix.to;
+      continue;
+    }
+
+    nextDevDependencies[fix.dependencyName] = fix.to;
+  }
+
+  return {
+    ...packageJson,
+    dependencies: nextDependencies,
+    devDependencies: nextDevDependencies,
+  };
 }
 
 export function detectAngularSsrMismatch(packageJson: PackageJsonShape): string | null {

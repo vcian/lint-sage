@@ -26,10 +26,21 @@ const FLAG_LABELS: Record<keyof GlobalOptions, string> = {
   packageManager: '--package-manager',
   monorepo: '--monorepo',
   fix: '--fix',
+  fixCompat: '--fix-compat',
+  skipSharedCheck: '--skip-shared-check',
 };
 
 const VALID_FLAGS_BY_COMMAND: Record<CommandName, ReadonlySet<keyof GlobalOptions>> = {
-  init: new Set(['force', 'preset', 'dryRun', 'verbose', 'packageManager', 'monorepo']),
+  init: new Set([
+    'force',
+    'preset',
+    'dryRun',
+    'verbose',
+    'packageManager',
+    'monorepo',
+    'fixCompat',
+    'skipSharedCheck',
+  ]),
   update: new Set(['dryRun', 'verbose', 'packageManager']),
   doctor: new Set(['verbose', 'fix']),
   eject: new Set(['force', 'dryRun', 'verbose', 'packageManager']),
@@ -61,6 +72,14 @@ function addCommonOptions(command: Command): Command {
       parsePackageManager,
     )
     .option('--monorepo', 'Force monorepo mode')
+    .option(
+      '--fix-compat',
+      'Auto-fix known dependency compatibility conflicts during init',
+    )
+    .option(
+      '--skip-shared-check',
+      'Skip shared package registry availability check (for local testing)',
+    )
     .option('--fix', 'Attempt to auto-fix issues found by doctor');
 }
 

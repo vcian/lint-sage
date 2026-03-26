@@ -115,6 +115,8 @@ All packages must be listed — lint-sage will error if a discovered package is 
 | ------------------- | ------------------------- | ------------------------------------------------------ |
 | `--preset <value>`  | `init`                    | Skip prompts with a preset (`next-js`, `nestjs`, etc.) |
 | `--monorepo`        | `init`                    | Force monorepo mode                                    |
+| `--fix-compat`      | `init`                    | Auto-fix known dependency compatibility conflicts      |
+| `--skip-shared-check` | `init`                 | Skip shared package registry check for local testing   |
 | `--force`           | `init`, `eject`           | Skip confirmation prompts                              |
 | `--dry-run`         | `init`, `update`, `eject` | Preview changes without writing files                  |
 | `--verbose`         | all                       | Print detailed output for debugging                    |
@@ -141,6 +143,8 @@ Root gets shared configs (Prettier, Husky, commitlint, lint-staged, VS Code, CI)
 ## Compatibility Preflight
 
 Before writing files, `init` now performs compatibility checks and fails early with actionable guidance for known dependency conflicts (for example, `typescript@6` with `ts-jest@29`, or `eslint@10` with `@typescript-eslint@8`).
+Use `--fix-compat` to auto-apply safe compatibility pins before `init` continues.
+Use `--skip-shared-check` for local development/testing when `@vcian/*` packages are installed via local tarballs/links instead of a registry.
 
 For Angular SSR variants, `init` also warns when `@angular/build` and `@angular/ssr` versions are misaligned in the current project.
 
