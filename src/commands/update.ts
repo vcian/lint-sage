@@ -70,6 +70,8 @@ function printFileSummary(files: FileDiffResult[], dryRun: boolean): void {
 function printDepsSummary(
   addedDeps: string[],
   updatedDeps: DepVersionChange[],
+  addedOverrides: string[],
+  updatedOverrides: DepVersionChange[],
   addedScripts: string[],
   updatedScripts: string[],
   dryRun: boolean,
@@ -88,6 +90,21 @@ function printDepsSummary(
 
     for (const dep of addedDeps) {
       console.log(`  + ${dep}`);
+    }
+  }
+
+  console.log('');
+  console.log(`${prefix}Overrides:`);
+
+  if (addedOverrides.length === 0 && updatedOverrides.length === 0) {
+    console.log('  (no changes)');
+  } else {
+    for (const override of updatedOverrides) {
+      console.log(`  ↑ ${override.name}: ${override.oldVersion} → ${override.newVersion}`);
+    }
+
+    for (const override of addedOverrides) {
+      console.log(`  + ${override}`);
     }
   }
 
@@ -114,6 +131,8 @@ function hasChanges(diff: DiffResult, packageResult: UpdatePackageForUpdateResul
   const hasPackageChanges =
     packageResult.addedDependencies.length > 0 ||
     packageResult.updatedDependencies.length > 0 ||
+    packageResult.addedOverrides.length > 0 ||
+    packageResult.updatedOverrides.length > 0 ||
     packageResult.addedScripts.length > 0 ||
     packageResult.updatedScripts.length > 0;
 
@@ -330,6 +349,8 @@ async function handleSingleProjectUpdate(
   printDepsSummary(
     packageResult.addedDependencies,
     packageResult.updatedDependencies,
+    packageResult.addedOverrides,
+    packageResult.updatedOverrides,
     packageResult.addedScripts,
     packageResult.updatedScripts,
     Boolean(options.dryRun),
@@ -427,6 +448,8 @@ async function handleMonorepoUpdate(
   printDepsSummary(
     packageResult.addedDependencies,
     packageResult.updatedDependencies,
+    packageResult.addedOverrides,
+    packageResult.updatedOverrides,
     packageResult.addedScripts,
     packageResult.updatedScripts,
     Boolean(options.dryRun),

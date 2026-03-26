@@ -8,11 +8,14 @@ import type {
   UpdatePackageForUpdateResult,
   Variant,
 } from '../types.js';
+import { resolveDependencyOverrides } from './dependency-overrides.js';
 import { readDependenciesTemplate, readMonorepoDependenciesTemplate } from './template-loader.js';
 import { shouldUpdateVersion } from './update-package.js';
 
 type PackageJsonShape = {
+  dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
+  overrides?: Record<string, string>;
   scripts?: Record<string, string>;
   [key: string]: unknown;
 };
@@ -79,18 +82,22 @@ export async function updateMonorepoPackageJson(
     respectHigherPatch = false,
     verbose = false,
   } = input;
+  const packageSelections = [...packages];
   const packageJsonPath = path.join(targetDirectory, 'package.json');
   const existingPackageJson = JSON.parse(
     await readFile(packageJsonPath, 'utf8'),
   ) as PackageJsonShape;
-  const templatePackageJson = await buildMonorepoTemplatePackageJson(packages);
+  const templatePackageJson = await buildMonorepoTemplatePackageJson(packageSelections);
 
   const existingDevDependencies = { ...(existingPackageJson.devDependencies ?? {}) };
+  const existingOverrides = { ...(existingPackageJson.overrides ?? {}) };
   const existingScripts = { ...(existingPackageJson.scripts ?? {}) };
   const addedDependencies: string[] = [];
   const updatedDependencies: DepVersionChange[] = [];
   const addedScripts: string[] = [];
   const updatedScripts: string[] = [];
+  const addedOverrides: string[] = [];
+  const updatedOverrides: DepVersionChange[] = [];
 
   for (const [dependencyName, dependencyVersion] of Object.entries(
     templatePackageJson.devDependencies,
@@ -125,6 +132,31 @@ export async function updateMonorepoPackageJson(
     }
   }
 
+  const dynamicOverrides: Record<string, string> = Object.assign(
+    {},
+    ...packageSelections.map((pkg) =>
+      resolveDependencyOverrides(existingPackageJson, pkg.stack, pkg.variant, templatePackageJson.devDependencies),
+    ),
+  );
+  const nextOverrides = {
+    ...existingOverrides,
+    ...dynamicOverrides,
+  };
+  for (const [overrideName, overrideVersion] of Object.entries(dynamicOverrides)) {
+    const previous = existingOverrides[overrideName];
+    if (!previous) {
+      addedOverrides.push(overrideName);
+      continue;
+    }
+    if (previous !== overrideVersion) {
+      updatedOverrides.push({
+        name: overrideName,
+        oldVersion: previous,
+        newVersion: overrideVersion,
+      });
+    }
+  }
+
   if (includeScripts) {
     for (const [scriptName, scriptValue] of Object.entries(templatePackageJson.scripts)) {
       if (!(scriptName in existingScripts)) {
@@ -152,6 +184,7 @@ export async function updateMonorepoPackageJson(
   const nextPackageJson: PackageJsonShape = {
     ...existingPackageJson,
     devDependencies: sortRecord(existingDevDependencies),
+    overrides: sortRecord(nextOverrides),
     scripts: sortRecord(existingScripts),
   };
 
@@ -163,6 +196,8 @@ export async function updateMonorepoPackageJson(
     addedDependencies,
     addedScripts,
     updatedDependencies,
+    addedOverrides,
+    updatedOverrides,
     updatedScripts,
     wroteFile: !dryRun,
   };

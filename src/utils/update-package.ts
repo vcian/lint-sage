@@ -7,10 +7,13 @@ import type {
   UpdatePackageInput,
   UpdatePackageResult,
 } from '../types.js';
+import { resolveDependencyOverrides } from './dependency-overrides.js';
 import { readDependenciesTemplate } from './template-loader.js';
 
 type PackageJsonShape = {
+  dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
+  overrides?: Record<string, string>;
   scripts?: Record<string, string>;
   [key: string]: unknown;
 };
@@ -62,11 +65,14 @@ export async function updatePackage(input: UpdatePackageInput): Promise<UpdatePa
   const templatePackageJson = await readDependenciesTemplate(stack, variant);
 
   const existingDevDependencies = { ...(existingPackageJson.devDependencies ?? {}) };
+  const existingOverrides = { ...(existingPackageJson.overrides ?? {}) };
   const existingScripts = { ...(existingPackageJson.scripts ?? {}) };
   const addedDependencies: string[] = [];
   const updatedDependencies: string[] = [];
   const addedScripts: string[] = [];
   const updatedScripts: string[] = [];
+  const addedOverrides: string[] = [];
+  const updatedOverrides: DepVersionChange[] = [];
 
   for (const [dependencyName, dependencyVersion] of Object.entries(
     templatePackageJson.devDependencies,
@@ -89,6 +95,31 @@ export async function updatePackage(input: UpdatePackageInput): Promise<UpdatePa
       if (verbose) {
         console.log(`Updated devDependency ${dependencyName}: ${dependencyVersion}`);
       }
+    }
+  }
+
+  const dynamicOverrides = resolveDependencyOverrides(
+    existingPackageJson,
+    stack,
+    variant,
+    templatePackageJson.devDependencies,
+  );
+  const nextOverrides = {
+    ...existingOverrides,
+    ...dynamicOverrides,
+  };
+  for (const [overrideName, overrideVersion] of Object.entries(dynamicOverrides)) {
+    const previous = existingOverrides[overrideName];
+    if (!previous) {
+      addedOverrides.push(overrideName);
+      continue;
+    }
+    if (previous !== overrideVersion) {
+      updatedOverrides.push({
+        name: overrideName,
+        oldVersion: previous,
+        newVersion: overrideVersion,
+      });
     }
   }
 
@@ -117,6 +148,7 @@ export async function updatePackage(input: UpdatePackageInput): Promise<UpdatePa
   const nextPackageJson: PackageJsonShape = {
     ...existingPackageJson,
     devDependencies: sortRecord(existingDevDependencies),
+    overrides: sortRecord(nextOverrides),
     scripts: sortRecord(existingScripts),
   };
 
@@ -132,6 +164,8 @@ export async function updatePackage(input: UpdatePackageInput): Promise<UpdatePa
     addedDependencies,
     addedScripts,
     updatedDependencies,
+    addedOverrides,
+    updatedOverrides,
     updatedScripts,
     wroteFile: !dryRun,
   };
@@ -148,11 +182,14 @@ export async function updatePackageForUpdate(
   const templatePackageJson = await readDependenciesTemplate(stack, variant);
 
   const existingDevDependencies = { ...(existingPackageJson.devDependencies ?? {}) };
+  const existingOverrides = { ...(existingPackageJson.overrides ?? {}) };
   const existingScripts = { ...(existingPackageJson.scripts ?? {}) };
   const addedDependencies: string[] = [];
   const updatedDependencies: DepVersionChange[] = [];
   const addedScripts: string[] = [];
   const updatedScripts: string[] = [];
+  const addedOverrides: string[] = [];
+  const updatedOverrides: DepVersionChange[] = [];
 
   for (const [dependencyName, dependencyVersion] of Object.entries(
     templatePackageJson.devDependencies,
@@ -187,6 +224,31 @@ export async function updatePackageForUpdate(
     }
   }
 
+  const dynamicOverrides = resolveDependencyOverrides(
+    existingPackageJson,
+    stack,
+    variant,
+    templatePackageJson.devDependencies,
+  );
+  const nextOverrides = {
+    ...existingOverrides,
+    ...dynamicOverrides,
+  };
+  for (const [overrideName, overrideVersion] of Object.entries(dynamicOverrides)) {
+    const previous = existingOverrides[overrideName];
+    if (!previous) {
+      addedOverrides.push(overrideName);
+      continue;
+    }
+    if (previous !== overrideVersion) {
+      updatedOverrides.push({
+        name: overrideName,
+        oldVersion: previous,
+        newVersion: overrideVersion,
+      });
+    }
+  }
+
   for (const [scriptName, scriptValue] of Object.entries(templatePackageJson.scripts)) {
     if (!(scriptName in existingScripts)) {
       addedScripts.push(scriptName);
@@ -212,6 +274,7 @@ export async function updatePackageForUpdate(
   const nextPackageJson: PackageJsonShape = {
     ...existingPackageJson,
     devDependencies: sortRecord(existingDevDependencies),
+    overrides: sortRecord(nextOverrides),
     scripts: sortRecord(existingScripts),
   };
 
@@ -223,6 +286,8 @@ export async function updatePackageForUpdate(
     addedDependencies,
     addedScripts,
     updatedDependencies,
+    addedOverrides,
+    updatedOverrides,
     updatedScripts,
     wroteFile: !dryRun,
   };

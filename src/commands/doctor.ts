@@ -21,6 +21,7 @@ import {
   renderCiWorkflow,
   renderMonorepoCiWorkflow,
 } from '../utils/template-loader.js';
+import { resolveDependencyOverrides } from '../utils/dependency-overrides.js';
 
 const executableFiles = new Set(['.husky/pre-commit', '.husky/commit-msg']);
 const sharedPrefixes = [
@@ -224,10 +225,13 @@ async function fixDependencyVersions(
 ): Promise<boolean> {
   const packageJsonPath = path.join(targetDirectory, 'package.json');
   const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8')) as {
+    dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
+    overrides?: Record<string, string>;
     [key: string]: unknown;
   };
   const devDeps = packageJson.devDependencies ?? {};
+  const overrides = packageJson.overrides ?? {};
   const templateDeps = JSON.parse(
     await readTemplateFile(state.stack, state.variant, 'dependencies.json'),
   ) as { devDependencies: Record<string, string> };
@@ -246,9 +250,29 @@ async function fixDependencyVersions(
     }
   }
 
+  const expectedOverrides = resolveDependencyOverrides(packageJson, state.stack, state.variant, templateDeps.devDependencies);
+  for (const [name, expectedVersion] of Object.entries(expectedOverrides)) {
+    const oldVersion = overrides[name];
+    if (!oldVersion) {
+      overrides[name] = expectedVersion;
+      console.log(`✔ Fixed: added override ${name} ${expectedVersion} in package.json`);
+      modified = true;
+      continue;
+    }
+
+    if (oldVersion !== expectedVersion) {
+      overrides[name] = expectedVersion;
+      console.log(`✔ Fixed: override ${name} ${oldVersion} → ${expectedVersion} in package.json`);
+      modified = true;
+    }
+  }
+
   if (modified) {
     packageJson.devDependencies = Object.fromEntries(
       Object.entries(devDeps).sort(([a], [b]) => a.localeCompare(b)),
+    );
+    packageJson.overrides = Object.fromEntries(
+      Object.entries(overrides).sort(([a], [b]) => a.localeCompare(b)),
     );
     await writeFile(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`, 'utf8');
   }
@@ -276,7 +300,22 @@ async function fixMonorepoDependencyVersions(
     console.log(`✔ Fixed: ${dep.name} ${dep.oldVersion} → ${dep.newVersion} in package.json`);
   }
 
-  return result.addedDependencies.length > 0 || result.updatedDependencies.length > 0;
+  for (const overrideName of result.addedOverrides) {
+    console.log(`✔ Fixed: added override ${overrideName} in package.json`);
+  }
+
+  for (const override of result.updatedOverrides) {
+    console.log(
+      `✔ Fixed: override ${override.name} ${override.oldVersion} → ${override.newVersion} in package.json`,
+    );
+  }
+
+  return (
+    result.addedDependencies.length > 0 ||
+    result.updatedDependencies.length > 0 ||
+    result.addedOverrides.length > 0 ||
+    result.updatedOverrides.length > 0
+  );
 }
 
 async function collectLegacyConfigPaths(

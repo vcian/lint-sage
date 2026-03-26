@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import type { CheckResult, LintSageState } from '../types.js';
+import { resolveDependencyOverrides } from './dependency-overrides.js';
 import { readDependenciesTemplate } from './template-loader.js';
 
 async function pathExists(filePath: string): Promise<boolean> {
@@ -136,11 +137,16 @@ async function checkDependencyVersions(
 
   const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8')) as {
     devDependencies?: Record<string, string>;
+    dependencies?: Record<string, string>;
+    overrides?: Record<string, string>;
   };
   const devDeps = packageJson.devDependencies ?? {};
+  const existingOverrides = packageJson.overrides ?? {};
   const templateDeps = await readDependenciesTemplate(state.stack, state.variant);
   const mismatched: string[] = [];
   const missing: string[] = [];
+  const overrideMismatched: string[] = [];
+  const overrideMissing: string[] = [];
 
   for (const [name, expectedVersion] of Object.entries(templateDeps.devDependencies)) {
     if (!(name in devDeps)) {
@@ -150,20 +156,42 @@ async function checkDependencyVersions(
     }
   }
 
+  const expectedOverrides = resolveDependencyOverrides(packageJson, state.stack, state.variant, templateDeps.devDependencies);
+  for (const [name, expectedVersion] of Object.entries(expectedOverrides)) {
+    const existingVersion = existingOverrides[name];
+    if (!existingVersion) {
+      overrideMissing.push(name);
+      continue;
+    }
+    if (existingVersion !== expectedVersion) {
+      overrideMismatched.push(`${name} (has ${existingVersion}, expected ${expectedVersion})`);
+    }
+  }
+
   if (missing.length > 0) {
     return {
       name: 'Dependency versions',
       status: 'fail',
-      message: `Missing dependencies: ${missing.join(', ')}`,
+      message: `Missing dependencies: ${missing.join(', ')}${overrideMissing.length > 0 ? `; missing overrides: ${overrideMissing.join(', ')}` : ''}`,
       fixable: true,
     };
   }
 
-  if (mismatched.length > 0) {
+  if (mismatched.length > 0 || overrideMismatched.length > 0 || overrideMissing.length > 0) {
+    const parts: string[] = [];
+    if (mismatched.length > 0) {
+      parts.push(`Version mismatches: ${mismatched.join(', ')}`);
+    }
+    if (overrideMissing.length > 0) {
+      parts.push(`Missing overrides: ${overrideMissing.join(', ')}`);
+    }
+    if (overrideMismatched.length > 0) {
+      parts.push(`Override mismatches: ${overrideMismatched.join(', ')}`);
+    }
     return {
       name: 'Dependency versions',
       status: 'warn',
-      message: `Version mismatches: ${mismatched.join(', ')}`,
+      message: parts.join('; '),
       fixable: true,
     };
   }

@@ -22,6 +22,9 @@ function silenceConsole() {
   const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
   return {
+    get stdout() {
+      return logSpy.mock.calls.map((args) => args.join(' ')).join('\n');
+    },
     restore() {
       logSpy.mockRestore();
       errorSpy.mockRestore();
@@ -205,6 +208,120 @@ describe('handleInit', () => {
       );
 
       expect(exitCode).toBe(1);
+    } finally {
+      consoleSilencer.restore();
+    }
+  });
+
+  it('auto-fixes known compatibility conflicts with --fix-compat', async () => {
+    const handleInit = await loadHandleInit();
+    const targetDirectory = await mkdtemp(path.join(os.tmpdir(), 'lint-sage-init-fix-compat-'));
+    const consoleSilencer = silenceConsole();
+
+    await writeFile(
+      path.join(targetDirectory, 'package.json'),
+      `${JSON.stringify(
+        {
+          name: 'sample-app',
+          devDependencies: {
+            eslint: '^10.1.0',
+            'ts-jest': '^29.2.5',
+            typescript: '^6.0.2',
+            'typescript-eslint': '^8.20.0',
+          },
+        },
+        null,
+        2,
+      )}\n`,
+      'utf8',
+    );
+
+    try {
+      const exitCode = await withWorkingDirectory(targetDirectory, () =>
+        handleInit({
+          preset: 'plain-ts',
+          fixCompat: true,
+        }),
+      );
+
+      const packageJson = JSON.parse(await readFile(path.join(targetDirectory, 'package.json'), 'utf8')) as {
+        devDependencies: Record<string, string>;
+      };
+
+      expect(exitCode).toBe(0);
+      expect(packageJson.devDependencies.typescript).toBe('~5.9.3');
+      expect(packageJson.devDependencies.eslint).toBe('~9.22.0');
+    } finally {
+      consoleSilencer.restore();
+    }
+  });
+
+  it('prints dry-run compatibility fix preview with --fix-compat', async () => {
+    const handleInit = await loadHandleInit();
+    const targetDirectory = await mkdtemp(
+      path.join(os.tmpdir(), 'lint-sage-init-fix-compat-dryrun-'),
+    );
+    const consoleSilencer = silenceConsole();
+
+    await writeFile(
+      path.join(targetDirectory, 'package.json'),
+      `${JSON.stringify(
+        {
+          name: 'sample-app',
+          devDependencies: {
+            eslint: '^10.1.0',
+            'ts-jest': '^29.2.5',
+            typescript: '^6.0.2',
+            'typescript-eslint': '^8.20.0',
+          },
+        },
+        null,
+        2,
+      )}\n`,
+      'utf8',
+    );
+
+    try {
+      const beforePackageJson = await readFile(path.join(targetDirectory, 'package.json'), 'utf8');
+      const exitCode = await withWorkingDirectory(targetDirectory, () =>
+        handleInit({
+          preset: 'plain-ts',
+          fixCompat: true,
+          dryRun: true,
+        }),
+      );
+      const afterPackageJson = await readFile(path.join(targetDirectory, 'package.json'), 'utf8');
+
+      expect(exitCode).toBe(0);
+      expect(consoleSilencer.stdout).toContain('[dry-run] Would fix typescript: ^6.0.2 -> ~5.9.3');
+      expect(consoleSilencer.stdout).toContain('[dry-run] Would fix eslint: ^10.1.0 -> ~9.22.0');
+      expect(afterPackageJson).toBe(beforePackageJson);
+    } finally {
+      consoleSilencer.restore();
+    }
+  });
+
+  it('allows local init with --skip-shared-check', async () => {
+    const handleInit = await loadHandleInit();
+    const targetDirectory = await mkdtemp(path.join(os.tmpdir(), 'lint-sage-init-skip-shared-'));
+    const consoleSilencer = silenceConsole();
+
+    await writeFile(
+      path.join(targetDirectory, 'package.json'),
+      `${JSON.stringify({ name: 'sample-app', private: true }, null, 2)}\n`,
+      'utf8',
+    );
+
+    try {
+      const exitCode = await withWorkingDirectory(targetDirectory, () =>
+        handleInit({
+          preset: 'plain-ts',
+          skipSharedCheck: true,
+        }),
+      );
+
+      expect(exitCode).toBe(0);
+      await expect(stat(path.join(targetDirectory, '.lint-sage.json'))).resolves.toBeTruthy();
     } finally {
       consoleSilencer.restore();
     }

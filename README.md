@@ -44,7 +44,7 @@ npm install   # or pnpm install / yarn install
 - **lint-staged** — run linters on staged files only
 - **commitlint** — enforce Conventional Commits via `@vcian/commitlint-config`
 - **VS Code** — workspace settings and extension recommendations
-- **GitHub Actions** — `.github/workflows/ci.yml` CI workflow
+- **GitHub Actions** — `.github/workflows/lint.yml` CI workflow
 - **package.json** — `devDependencies` and lint/format scripts
 
 ## CLI Commands
@@ -115,6 +115,8 @@ All packages must be listed — lint-sage will error if a discovered package is 
 | ------------------- | ------------------------- | ------------------------------------------------------ |
 | `--preset <value>`  | `init`                    | Skip prompts with a preset (`next-js`, `nestjs`, etc.) |
 | `--monorepo`        | `init`                    | Force monorepo mode                                    |
+| `--fix-compat`      | `init`                    | Auto-fix known dependency compatibility conflicts      |
+| `--skip-shared-check` | `init`                 | Skip shared package registry check for local testing   |
 | `--force`           | `init`, `eject`           | Skip confirmation prompts                              |
 | `--dry-run`         | `init`, `update`, `eject` | Preview changes without writing files                  |
 | `--verbose`         | all                       | Print detailed output for debugging                    |
@@ -137,6 +139,28 @@ npx @vcian/lint-sage init --preset "apps/web:next-js,apps/api:nestjs,packages/sh
 ```
 
 Root gets shared configs (Prettier, Husky, commitlint, lint-staged, VS Code, CI). Each package gets its own `eslint.config.js` matching its stack.
+
+## Compatibility Preflight
+
+Before writing files, `init` now performs compatibility checks and fails early with actionable guidance for known dependency conflicts (for example, `typescript@6` with `ts-jest@29`, or `eslint@10` with `@typescript-eslint@8`).
+Use `--fix-compat` to auto-apply safe compatibility pins before `init` continues.
+Use `--skip-shared-check` for local development/testing when `@vcian/*` packages are installed via local tarballs/links instead of a registry.
+
+For Angular SSR variants, `init` also warns when `@angular/build` and `@angular/ssr` versions are misaligned in the current project.
+
+`init` also writes compatibility `package.json#overrides` for critical dependency alignment.
+
+## Compatibility Overrides
+
+lint-sage manages deterministic compatibility overrides to reduce peer dependency conflicts:
+
+- `eslint` is pinned to a supported major (8/9), normalized to a tilde version.
+- `@typescript-eslint/parser` and `@typescript-eslint/eslint-plugin` are aligned together.
+- for `angular-ssr`, `@angular/ssr` is aligned to `@angular/build` when host versions diverge.
+
+`update` now prints an `Overrides` section so compatibility pins are visible during preview/apply.
+
+`doctor` validates missing/mismatched compatibility overrides and `doctor --fix` reconciles them.
 
 ## Shared Config Packages
 
