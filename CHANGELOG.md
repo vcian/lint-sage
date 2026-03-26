@@ -4,6 +4,16 @@ _Unreleased_
 
 Complete rewrite of lint-sage as a stateful CLI with lifecycle management.
 
+### Reliability Improvements (Unreleased)
+
+- Added `init` compatibility preflight checks for known peer-conflict combinations (e.g. `ts-jest@29` with TypeScript 6, `@typescript-eslint@8` with ESLint 10).
+- Added Angular SSR mismatch warnings when host project versions for `@angular/build` and `@angular/ssr` are not aligned.
+- Added shared-package availability checks so `init` fails early if required `@vcian/*` packages are not resolvable from npm.
+- Added deterministic compatibility override generation in package updates (`eslint`, `@typescript-eslint/*`, Angular SSR alignment).
+- Added explicit override reporting in `update` output so pinned compatibility changes are visible.
+- Added `doctor` override health checks (missing/mismatched overrides) and `doctor --fix` reconciliation support.
+- Updated docs to reflect generated CI workflow path (`.github/workflows/lint.yml`) and new preflight behavior.
+
 ### New Features
 
 - **`init` command** — interactive stack/variant selection, preset support (`--preset`), generates ESLint, Prettier, Husky, lint-staged, commitlint, VS Code, and GitHub Actions configs

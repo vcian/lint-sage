@@ -42,6 +42,7 @@ describe('updatePackage', () => {
       name: string;
       private: boolean;
       devDependencies: Record<string, string>;
+      overrides: Record<string, string>;
       scripts: Record<string, string>;
     };
 
@@ -50,6 +51,9 @@ describe('updatePackage', () => {
     expect(updatedPackageJson.devDependencies.eslint).toBe('~9.22.0');
     expect(updatedPackageJson.devDependencies.typescript).toBe('^5.7.0');
     expect(updatedPackageJson.devDependencies['@vcian/eslint-config-react']).toBe('~1.0.0');
+    expect(updatedPackageJson.overrides.eslint).toBe('~8.57.0');
+    expect(updatedPackageJson.overrides['@typescript-eslint/parser']).toBe('~8.26.0');
+    expect(updatedPackageJson.overrides['@typescript-eslint/eslint-plugin']).toBe('~8.26.0');
     expect(updatedPackageJson.scripts.lint).toBe('eslint .');
     expect(updatedPackageJson.scripts['format:check']).toBe('prettier --check .');
     expect(updatedPackageJson.scripts.test).toBe('vitest');
@@ -88,5 +92,38 @@ describe('updatePackage', () => {
     expect(result.addedScripts).toContain('lint');
     expect(result.wroteFile).toBe(false);
     expect(persistedPackageJson).toEqual(initialPackageJson);
+  });
+
+  it('adds angular SSR alignment override when versions are mismatched', async () => {
+    const targetDirectory = await mkdtemp(path.join(os.tmpdir(), 'lint-sage-package-angular-'));
+    const packageJsonPath = path.join(targetDirectory, 'package.json');
+
+    await writeFile(
+      packageJsonPath,
+      `${JSON.stringify(
+        {
+          name: 'angular-ssr-app',
+          devDependencies: {
+            '@angular/build': '^20.3.17',
+            '@angular/ssr': '^20.3.13',
+          },
+        },
+        null,
+        2,
+      )}\n`,
+      'utf8',
+    );
+
+    await updatePackage({
+      targetDirectory,
+      stack: 'angular',
+      variant: 'angular-ssr',
+    });
+
+    const updatedPackageJson = JSON.parse(await readFile(packageJsonPath, 'utf8')) as {
+      overrides?: Record<string, string>;
+    };
+
+    expect(updatedPackageJson.overrides?.['@angular/ssr']).toBe('~20.3.17');
   });
 });

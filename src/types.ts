@@ -47,6 +47,8 @@ export interface UpdatePackageResult {
   addedDependencies: string[];
   addedScripts: string[];
   updatedDependencies: string[];
+  addedOverrides: string[];
+  updatedOverrides: DepVersionChange[];
   updatedScripts: string[];
   wroteFile: boolean;
 }
@@ -98,6 +100,8 @@ export interface UpdatePackageForUpdateResult {
   addedDependencies: string[];
   addedScripts: string[];
   updatedDependencies: DepVersionChange[];
+  addedOverrides: string[];
+  updatedOverrides: DepVersionChange[];
   updatedScripts: string[];
   wroteFile: boolean;
 }

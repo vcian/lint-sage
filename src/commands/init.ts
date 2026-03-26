@@ -28,6 +28,12 @@ import {
   confirmOverwrite,
   confirmPackageJsonOverwrite,
 } from '../utils/init-flow.js';
+import {
+  collectInitCompatibilityIssues,
+  detectAngularSsrMismatch,
+  shouldCheckAngularSsr,
+  verifySharedConfigPackagesAvailable,
+} from '../utils/init-compatibility.js';
 import { detectExistingConfigs } from '../utils/detect-existing.js';
 import { detectPackageManager } from '../utils/package-manager.js';
 import {
@@ -84,11 +90,30 @@ function printCreatedFileSummary(filePaths: string[], dryRun: boolean): void {
 
 function printPackageSummary(dryRun: boolean): void {
   if (dryRun) {
-    console.log('[dry-run] Would update package.json (devDependencies + scripts)');
+    console.log('[dry-run] Would update package.json (devDependencies + overrides + scripts)');
     return;
   }
 
-  console.log('✔ Updated package.json (devDependencies + scripts)');
+  console.log('✔ Updated package.json (devDependencies + overrides + scripts)');
+}
+
+function printOverrideSummary(
+  addedOverrides: string[],
+  updatedOverrides: { name: string; oldVersion: string; newVersion: string }[],
+  dryRun: boolean,
+): void {
+  const prefix = dryRun ? '[dry-run] ' : '';
+  if (addedOverrides.length === 0 && updatedOverrides.length === 0) {
+    return;
+  }
+
+  console.log(`${prefix}Compatibility overrides:`);
+  for (const override of updatedOverrides) {
+    console.log(`  ↑ ${override.name}: ${override.oldVersion} → ${override.newVersion}`);
+  }
+  for (const override of addedOverrides) {
+    console.log(`  + ${override}`);
+  }
 }
 
 function printStateSummary(dryRun: boolean): void {
@@ -360,6 +385,34 @@ async function handleMonorepoInit(options: GlobalOptions): Promise<number> {
       }
     }
 
+    const existingPackageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const compatibility = collectInitCompatibilityIssues(existingPackageJson);
+    const includesAngularSsr = shouldCheckAngularSsr(packageSelections.map((p) => p.variant));
+    const angularSsrWarning = includesAngularSsr ? detectAngularSsrMismatch(existingPackageJson) : null;
+
+    if (compatibility.errors.length > 0) {
+      console.error('Detected incompatible dependency versions in current project:');
+      for (const issue of compatibility.errors) {
+        console.error(`  - ${issue}`);
+      }
+      return 1;
+    }
+
+    for (const warning of compatibility.warnings) {
+      console.error(`⚠ ${warning}`);
+    }
+
+    if (angularSsrWarning) {
+      console.error(`⚠ ${angularSsrWarning}`);
+    }
+
+    if (!options.dryRun) {
+      verifySharedConfigPackagesAvailable([...new Set(packageSelections.map((p) => p.stack))]);
+    }
+
     const dryRun = Boolean(options.dryRun);
     const verbose = Boolean(options.verbose);
     const lintCommand = getMonorepoLintCommand(monorepoTool, packageManager);
@@ -468,12 +521,17 @@ async function handleMonorepoInit(options: GlobalOptions): Promise<number> {
     }
 
     if (dryRun) {
-      console.log('[dry-run] Would update package.json (devDependencies + scripts)');
+      console.log('[dry-run] Would update package.json (devDependencies + overrides + scripts)');
       console.log('[dry-run] Would create .lint-sage.json');
     } else {
-      console.log('✔ Updated package.json (devDependencies + scripts)');
+      console.log('✔ Updated package.json (devDependencies + overrides + scripts)');
       console.log('✔ Created .lint-sage.json');
     }
+    printOverrideSummary(
+      packageResult.addedOverrides,
+      packageResult.updatedOverrides,
+      Boolean(options.dryRun),
+    );
 
     console.log('');
     console.log("Run your package manager's install command to install the new dependencies.");
@@ -525,6 +583,34 @@ export async function handleInit(options: GlobalOptions): Promise<number> {
     }
 
     const { stack, variant } = await resolveSelection(options);
+    const existingPackageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const compatibility = collectInitCompatibilityIssues(existingPackageJson);
+    const angularSsrWarning =
+      variant === 'angular-ssr' ? detectAngularSsrMismatch(existingPackageJson) : null;
+
+    if (compatibility.errors.length > 0) {
+      console.error('Detected incompatible dependency versions in current project:');
+      for (const issue of compatibility.errors) {
+        console.error(`  - ${issue}`);
+      }
+      return 1;
+    }
+
+    for (const warning of compatibility.warnings) {
+      console.error(`⚠ ${warning}`);
+    }
+
+    if (angularSsrWarning) {
+      console.error(`⚠ ${angularSsrWarning}`);
+    }
+
+    if (!options.dryRun) {
+      verifySharedConfigPackagesAvailable([stack]);
+    }
+
     const detectedExistingFiles = await detectExistingConfigs(targetDirectory);
     const packagePreview = await updatePackage({
       targetDirectory,
@@ -596,6 +682,11 @@ export async function handleInit(options: GlobalOptions): Promise<number> {
       printCreatedFileSummary(writeResult.writtenFiles, false);
     }
     printPackageSummary(Boolean(options.dryRun));
+    printOverrideSummary(
+      packageResult.addedOverrides,
+      packageResult.updatedOverrides,
+      Boolean(options.dryRun),
+    );
     printStateSummary(Boolean(options.dryRun));
     console.log('');
     console.log("Run your package manager's install command to install the new dependencies.");

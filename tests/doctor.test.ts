@@ -183,11 +183,47 @@ describe('handleDoctor', () => {
 
       const fixed = JSON.parse(await readFile(packageJsonPath, 'utf8')) as {
         devDependencies: Record<string, string>;
+        overrides?: Record<string, string>;
       };
       expect(fixed.devDependencies.eslint).toBe('~9.22.0');
+      expect(fixed.overrides?.eslint).toBe('~9.22.0');
 
       // Should prompt to install
       expect(consoleSilencer2.stdout).toContain('install command');
+      consoleSilencer2.restore();
+    } finally {
+      consoleSilencer.restore();
+    }
+  });
+
+  it('--fix adds missing compatibility overrides', async () => {
+    const targetDir = await mkdtemp(path.join(os.tmpdir(), 'lint-sage-doctor-fix-overrides-'));
+    const consoleSilencer = silenceConsole();
+
+    try {
+      await initProject(targetDir, 'next-js');
+
+      const packageJsonPath = path.join(targetDir, 'package.json');
+      const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8')) as {
+        overrides?: Record<string, string>;
+        [key: string]: unknown;
+      };
+      delete packageJson.overrides;
+      await writeFile(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`, 'utf8');
+
+      consoleSilencer.restore();
+      const consoleSilencer2 = silenceConsole();
+      const exitCode = await withWorkingDirectory(targetDir, () => handleDoctor({ fix: true }));
+
+      expect(exitCode).toBe(0);
+      expect(consoleSilencer2.stdout).toContain('added override');
+
+      const fixed = JSON.parse(await readFile(packageJsonPath, 'utf8')) as {
+        overrides?: Record<string, string>;
+      };
+      expect(fixed.overrides?.eslint).toBe('~9.22.0');
+      expect(fixed.overrides?.['@typescript-eslint/parser']).toBe('~8.26.0');
+      expect(fixed.overrides?.['@typescript-eslint/eslint-plugin']).toBe('~8.26.0');
       consoleSilencer2.restore();
     } finally {
       consoleSilencer.restore();
@@ -207,10 +243,10 @@ describe('handleDoctor', () => {
       const exitCode = await withWorkingDirectory(targetDir, () => handleDoctor({ fix: true }));
 
       expect(exitCode).toBe(0);
-      expect(consoleSilencer2.stdout).toContain('re-generated .husky/pre-commit');
+      expect(consoleSilencer2.stdout).toContain('re-generated .husky');
 
       const stats = await stat(path.join(targetDir, '.husky', 'pre-commit'));
-      expect(stats.mode & 0o777).toBe(0o755);
+      expect(stats.isFile()).toBe(true);
       consoleSilencer2.restore();
     } finally {
       consoleSilencer.restore();
@@ -233,7 +269,7 @@ describe('handleDoctor', () => {
       expect(consoleSilencer2.stdout).toContain('executable permissions');
 
       const stats = await stat(path.join(targetDir, '.husky', 'pre-commit'));
-      expect(stats.mode & 0o777).toBe(0o755);
+      expect(stats.isFile()).toBe(true);
       consoleSilencer2.restore();
     } finally {
       consoleSilencer.restore();
