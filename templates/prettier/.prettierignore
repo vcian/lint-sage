@@ -1,0 +1,10 @@
+dist
+build
+node_modules
+coverage
+.next
+.angular
+.husky
+pnpm-lock.yaml
+package-lock.json
+yarn.lock

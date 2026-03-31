@@ -1,56 +1,119 @@
 # Contributing to Lint Sage
 
-Thank you for considering contributing to Lint Sage! We welcome your help and support in making this project better. This document outlines the guidelines for contributing to our project. Please take a moment to review it to ensure a smooth and effective collaboration.
+Thanks for contributing to Lint Sage. This project scaffolds linting, formatting, and code quality infrastructure for ViitorCloud TypeScript projects, so even small changes can affect how new projects are bootstrapped. Please favor clarity, predictability, and safe defaults.
 
-## Code of Conduct
+## Before You Start
 
-Please note that this project is released with a [Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project, you agree to abide by its terms.
+Read these project references before making non-trivial changes:
 
-## How to Contribute
+- `README.md`
+- `AGENTS.md`
+- `docs/overview.md`
+- `docs/architecture.md`
 
-We appreciate and welcome contributions in various forms, including bug reports, feature requests, documentation improvements, code enhancements, and more. Here's how you can get started:
+The most important design rules are:
 
-1. **Fork the Repository**: If you haven't already, fork the repository to your GitHub account.
+- Copy-paste, not dependency
+- Detect first, scaffold second
+- Respect existing tools instead of upgrading or replacing them
+- Use framework-specific static templates
+- Prompt before overwriting existing files
+- Leave no trace outside the files the user asked to scaffold
 
-2. **Clone the Repository**: Clone your forked repository to your local development environment.
+## Local Setup
 
-   ```bash
-   git clone https://github.com/vcian/lint-sage.git
-   ```
-3. **Create a Branch**: Before you start making changes to the project, it's essential to create a new branch where you'll work on your feature or bug fix. Use a descriptive branch name that summarizes your changes:
+Lint Sage targets Node 18+ and uses npm in this repository.
 
-   ```bash
-   git checkout -b feature/your-feature
-   ```
+```bash
+npm ci
+npm run build
+npm run test -- --run
+```
 
-    Replace `feature/your-feature` with an appropriate branch name that reflects the nature of your work.
+Useful commands during development:
 
-4. **Make Changes**: Now that you have your branch, you can start making changes to the project. Implement your feature, fix bugs, or make other improvements. Ensure that your code adheres to the project's coding guidelines and standards.
+```bash
+npm run dev
+npm run build
+npm run test
+```
 
-5. **Documentation**: If your changes affect user documentation, it's crucial to update the documentation accordingly. Clear and up-to-date documentation ensures that users can understand and use your changes effectively.
+## Project Map
 
-6. **Commit Changes**: Once you've made the necessary changes and are satisfied with your work, it's time to commit your changes. Use a clear and concise commit message that describes the purpose of your commit:
+- `src/cli.ts`: CLI entry point and top-level orchestration
+- `src/detect/`: read-only environment detection
+- `src/resolve/`: compatibility rules and action-plan generation
+- `src/scaffold/`: dependency installation, `package.json` patching, file writing
+- `templates/`: static framework-aware config templates
+- `docs/`: product and architecture documentation
 
-   ```bash
-   git commit -m "Your commit message"
-   ```
+## Contribution Guidelines
 
-    Replace `"Your commit message"` with a message that summarizes what your commit accomplishes. A well-written commit message helps others understand the purpose of your changes.
+### Keep the Pipeline Intact
 
-7. **Push Changes**: After committing your changes locally, it's time to push them to your forked repository on GitHub. This step ensures that your changes are available for review and integration into the main project:
+The expected flow is:
 
-   ```bash
-   git push origin feature/your-feature
-   ```
+1. Detect the environment
+2. Resolve an action plan
+3. Report the plan and ask for confirmation
+4. Install missing dependencies
+5. Scaffold files and patch `package.json`
 
-    Replace `feature/your-feature` with the name of your branch. This command sends your changes to your GitHub repository, making them accessible for creating a pull request.
+Avoid changes that blur those responsibilities or introduce writes during detection.
 
-    By following these steps, you can effectively create, make changes, document, commit, and push your contributions to the project.
+### Respect Existing Projects
 
-8. **Create a Pull Request**: Open a pull request (PR) to the main repository. Please provide a clear and informative title and description of your changes.
+Lint Sage runs inside user projects. Changes should preserve the current safety model:
 
-9. **Code Review**: Your PR will undergo code review, where feedback may be provided. Be prepared to make further changes based on the feedback.
+- Do not overwrite existing scripts with the same name
+- Do not write files before the user confirms
+- Do not silently replace framework-specific configs
+- Do not introduce hidden state, caches, or trace files
+- Keep all missing dependency installs in a single package-manager command
 
-10. **Merging**: Once your PR is approved, it will be merged into the main repository.
+### Prefer Static, Auditable Templates
 
-11.  **Thank You!**: Your contribution is greatly appreciated. We thank you for your valuable help in improving Lint Sage.
+Templates should remain plain files organized by framework. If a framework needs different behavior, add or update the relevant template instead of introducing a complex templating engine.
+
+### Keep Docs and Behavior in Sync
+
+If you change supported frameworks, generated files, scripts, CLI prompts, or compatibility rules, update the related documentation in the same pull request.
+
+## Testing Expectations
+
+When your change affects behavior, add or update tests close to the code you changed:
+
+- Detection changes: `src/detect/__tests__/`
+- Resolution changes: `src/resolve/__tests__/`
+- Scaffolding changes: `src/scaffold/__tests__/`
+
+Before opening a pull request, run:
+
+```bash
+npm run build
+npm run test -- --run
+```
+
+If your change affects release artifacts, rebuild `dist/` from source instead of editing generated files by hand.
+
+## Pull Requests
+
+To help reviews move quickly:
+
+- Keep pull requests focused on one concern when possible
+- Explain the user impact and affected frameworks or tools
+- Call out any changes to generated files, prompts, install behavior, or overwrite behavior
+- Include tests for new behavior or explain why tests were not needed
+- Avoid bundling unrelated refactors with functional changes
+
+For larger changes, opening an issue first is helpful so the design can be aligned before implementation.
+
+## Reporting Bugs and Requesting Features
+
+- Use GitHub issues for bug reports, feature requests, and documentation improvements
+- Include reproduction steps, expected behavior, and actual behavior when reporting bugs
+- If a report may expose a security issue, follow `SECURITY.md` instead of filing it publicly
+
+## Community Standards
+
+By participating in this repository, you agree to follow the expectations in `CODE_OF_CONDUCT.md`.
